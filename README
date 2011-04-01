@@ -1,0 +1,23 @@
+"awesome" is basically a second try of a project i have been working for quite some time ("Pew-Pew"). But this time i will try to avoid the OpenGL deprecated functions and concentrate more on the GL 3/4 core feature set.
+
+Also it will have better organization file and class wise(hopefully).
+
+Files in the "data" directory are not consistently licensed so you should better look into "LICENSE" file.
+Other files are generally put under the public domain, unless otherwise noted at the end of the Source file.
+
+==How to build==
+1.	Requirements:
+			Scons (requires Python)
+			OpenGL, GLUT, GLEW, SDL, SDL_image
+			and of-course the usual build stuff: gcc/g++, binutils etc.
+
+2. If you have everything just run "scons"
+
+3. Start awesome by running "./build/awesome"
+
+@Me: Try to not browse reddit over the weekend(+ gmail & reader)
+
+Version Log:
+
+0.2
+	Renamed Project to "awesome", trying not to use deprecated OpenGL functions, restructured folder structure, now using Scons for building

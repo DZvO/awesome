@@ -1,0 +1,148 @@
+#include "game.hpp"
+motor::Game::Game(): background("data/background.png"),	logo("data/logo.png")
+{
+	loop = true;
+}
+
+int motor::Game::main(Window *wndw, Input *inp)
+{
+	window = wndw;
+	input = inp;
+
+	int const POSITION = 0;
+	int const TEXCOORD = 4;
+
+	struct vertex
+	{
+		vertex
+		(
+			glm::vec2 const & Position,
+			glm::vec2 const & Texcoord
+		) :
+			Position(Position),
+			Texcoord(Texcoord)
+		{}
+
+		glm::vec2 Position;
+		glm::vec2 Texcoord;
+	};
+
+	// With DDS textures, v texture coordinate are reversed, from top to bottom
+	GLsizei const VertexCount = 6;
+	GLsizeiptr const VertexSize = VertexCount * sizeof(vertex);
+	vertex const VertexData[VertexCount] =
+	{
+		vertex(glm::vec2(-1.0f,-1.0f), glm::vec2(0.0f, 1.0f)),
+		vertex(glm::vec2( 1.0f,-1.0f), glm::vec2(1.0f, 1.0f)),
+		vertex(glm::vec2( 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
+		vertex(glm::vec2( 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
+		vertex(glm::vec2(-1.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
+		vertex(glm::vec2(-1.0f,-1.0f), glm::vec2(0.0f, 1.0f))
+	};
+
+	//GLuint VertexArrayName = 0;
+	//GLuint ProgramName = 0;
+
+	GLuint BufferName = 0;
+	GLuint Texture2DName = 0;
+
+	//GLint UniformMVP = 0;
+	GLint UniformDiffuse = 0;
+
+	float delta = 0;
+	Shader *shader = new Shader();
+	shader->init();
+
+	shader->attachVertexShader("data/base.vert");
+	shader->attachFragmentShader("data/base.frag");
+	glBindAttribLocation(shader->getProgram(), 0, "Position");
+	glBindAttribLocation(shader->getProgram(), 4, "Texcoord");
+	shader->compile();
+	shader->activate();
+
+	projectionMatrix = glm::perspective(45.0f, float(window->width / window->height), window->near, window->far); 
+	viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+	viewMatrix = glm::rotate(viewMatrix, delta, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));//model matrix, halve size of model
+
+	int projectionMatrixUniform = shader->getUniformLocation("projectionMatrix");
+	int viewMatrixUniform = shader->getUniformLocation("viewMatrix");
+	int modelMatrixUniform = shader->getUniformLocation("modelMatrix");
+
+	cout << projectionMatrixUniform << " " << viewMatrixUniform << " " << modelMatrixUniform << " " << endl;
+	//---------------------------------------------------------------------------------------
+
+	//@@-----------@@
+	glGenBuffers(1, &BufferName);
+	glBindBuffer(GL_ARRAY_BUFFER, BufferName);
+	glBufferData(GL_ARRAY_BUFFER, VertexSize, VertexData, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//@@-----------@@
+
+	Image image("data/placeholder.png");
+
+	//---------------------------------------------------------------------------------------
+
+	while(loop)
+	{
+		input->update(window);
+		if(input->quit())
+			return 0;
+		delta += 0.31f;
+
+//		viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+//		viewMatrix = glm::rotate(viewMatrix, delta, glm::vec3(0.0f, 1.0f, 0.0f));
+//		modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));//model matrix, halve size of model
+
+		glEnable(GL_TEXTURE_2D);
+		glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shader->activate();
+		glUniform1i(UniformDiffuse, image.data);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Texture2DName);
+
+#define GLF_BUFFER_OFFSET(i) ((char *)NULL + (i))
+		glBindBuffer(GL_ARRAY_BUFFER, BufferName);
+		glVertexAttribPointer(POSITION, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), GLF_BUFFER_OFFSET(0));
+		glVertexAttribPointer(TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), GLF_BUFFER_OFFSET(sizeof(glm::vec2)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glEnableVertexAttribArray(POSITION);
+		glEnableVertexAttribArray(TEXCOORD);
+
+		glDrawArrays(GL_TRIANGLES, 0, VertexCount);
+
+		SDL_GL_SwapBuffers();
+	}
+	return 0;
+}
+
+void motor::Game::update()
+{
+
+}
+
+void motor::Game::draw()
+{
+
+}
+
+void motor::Game::init()
+{
+
+}
+
+void motor::Game::load()
+{
+
+}
+
+void motor::Game::unload()
+{
+
+}

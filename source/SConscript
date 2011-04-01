@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+libmotor_graphics = "window.cpp shader.cpp image.cpp camera.cpp chunk.cpp world.cpp"
+libmotor_graphics = map(lambda x: "motor/graphics/" + x, Split(libmotor_graphics))
+
+libmotor_io = "input.cpp socket.cpp"
+libmotor_io = map(lambda x: "motor/io/" + x, Split(libmotor_io))
+
+libmotor_utility = "time.cpp"
+libmotor_utility = map(lambda x: "motor/utility/" + x, Split(libmotor_utility))
+
+libmotor_math = "perlinNoise.cpp"
+libmotor_math = map(lambda x: "motor/math/" + x, Split(libmotor_math))
+
+libmotor = libmotor_graphics + libmotor_io + libmotor_utility + libmotor_math
+
+src_states = Split("state.cpp title.cpp game.cpp")
+
+libs = Split("GL GLU GLEW SDL SDL_image noise")
+
+cppPath = ["."]
+ccFlags = "-g -Wall -O3 -std=c++0x"
+
+#Library("motor", libmotor, LIBS = libs, CPPPATH = cppPath)
+#Program("awesome", "main.cpp", LIBS = libs + ["motor"], LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags)
+Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags)

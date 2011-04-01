@@ -1,0 +1,150 @@
+#include "game.hpp"
+
+struct vertex
+{
+	vertex
+		(
+		 glm::vec2 const & Position,
+		 glm::vec2 const & Texcoord
+		) :
+			Position(Position),
+			Texcoord(Texcoord)
+	{}
+
+	glm::vec2 Position;
+	glm::vec2 Texcoord;
+};
+
+motor::Game::Game(): background("data/background.png"),	logo("data/logo.png")
+{
+	loop = true;
+}
+
+static GLuint make_buffer(
+		GLenum target,
+		const void *buffer_data,
+		GLsizei buffer_size
+		) {
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(target, buffer);
+	glBufferData(target, buffer_size, buffer_data, GL_STATIC_DRAW);
+	return buffer;
+}
+
+Shader *shader;
+void init_shader()
+{
+	shader = new Shader();
+	shader->init();
+
+	shader->attachVertexShader("data/base.vert");
+	shader->attachFragmentShader("data/base.frag");
+	shader->compile();
+	shader->activate();
+}
+
+int projectionMatrixUniform;
+int viewMatrixUniform;
+int modelMatrixUniform;
+
+void init_matrices()
+{
+	projectionMatrixUniform = shader->getUniformLocation("projectionMatrix");
+	viewMatrixUniform = shader->getUniformLocation("viewMatrix");
+	modelMatrixUniform = shader->getUniformLocation("modelMatrix");
+
+	projectionMatrix = glm::perspective(45.0f, float(window->width / window->height), window->near, window->far); 
+	viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-10.0f, 0.0f, -5.0f));
+	viewMatrix = glm::rotate(viewMatrix, 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));//model matrix, halve size of model
+}
+
+unsigned int vertex_buffer;
+unsigned int element_buffer;
+void init_buffers()
+{
+	static const GLfloat g_vertex_buffer_data[] = { 
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		-1.0f,  1.0f,
+		1.0f,  1.0f
+	};
+	static const GLushort g_element_buffer_data[] = { 0, 1, 2, 3 };
+
+	vertex_buffer = make_buffer(GL_ARRAY_BUFFER, g_vertex_buffer_data, sizeof(g_vertex_buffer_data));
+	element_buffer = make_buffer(GL_ELEMENT_ARRAY_BUFFER,	g_element_buffer_data, sizeof(g_element_buffer_data));
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glVertexAttribPointer(
+			0,  /* attribute */
+			2,                                /* size */
+			GL_FLOAT,                         /* type */
+			GL_FALSE,                         /* normalized? */
+			sizeof(GLfloat)*2,                /* stride */
+			(void*)0                          /* array buffer offset */
+			);
+	glEnableVertexAttribArray(0);
+}
+
+int motor::Game::main(Window *wndw, Input *inp)
+{
+	window = wndw;
+	input = inp;
+
+	init_shader();
+	init_matrices();
+	init_buffers();
+
+
+	while(loop)
+	{
+		input->update(window);
+		if(input->quit())
+			return 0;
+		if(input->windowResized())
+		{
+			cout << "handled!" << window->width << " " << window->height << endl;
+			projectionMatrix = glm::perspective(45.0f, float(window->width / window->height), window->near, window->far); 
+		}
+
+		delta += 0.31f;
+
+		glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+		glDrawElements(GL_TRIANGLE_STRIP,	4, GL_UNSIGNED_SHORT,	0);
+
+		SDL_GL_SwapBuffers();
+	}
+	return 0;
+}
+
+void motor::Game::update()
+{
+
+}
+
+void motor::Game::draw()
+{
+
+}
+
+void motor::Game::init()
+{
+
+}
+
+void motor::Game::load()
+{
+
+}
+
+void motor::Game::unload()
+{
+
+}
