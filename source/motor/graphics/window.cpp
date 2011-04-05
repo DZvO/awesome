@@ -1,6 +1,6 @@
 #include "window.hpp"
 
-const float motor::Window::near = 1.f;
+const float motor::Window::near = .485f;
 const float motor::Window::far = 1000.0f;
 
 motor::Window::Window()
@@ -16,19 +16,27 @@ void motor::Window::open(int width, int height, string title)
 	this->width = width;
 	this->height = height;
 
-	if ( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) 
+	if(SDL_Init(SDL_INIT_TIMER) < 0 ) 
 	{
-		cout << "Unable to init SDL: " << SDL_GetError() << "\nPlease send me a mail with the Error Code\n";
+		cout << "Unable to init SDL_TIMER: " << SDL_GetError() << "\nPlease send me a mail with the Error Code\n";
 		exit(1);
 	}
+	if(SDL_Init(SDL_INIT_VIDEO) < 0 ) 
+	{
+		cout << "Unable to init SDL_VIDEO: " << SDL_GetError() << "\nPlease send me a mail with the Error Code\n";
+		exit(1);
+	}
+	//if(SDL_Init(SDL_INIT_AUDIO) < 0 ) 
+	//{
+	//	cout << "Unable to init SDL_VIDEO: " << SDL_GetError() << "\nPlease send me a mail with the Error Code\n";
+	//	exit(1);
+	//}
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	//SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	//SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL, 0);
 	screen = SDL_SetVideoMode(width, height, 32, SDL_OPENGL | SDL_DOUBLEBUF | SDL_RESIZABLE);
 	SDL_WM_SetCaption(title.c_str(), NULL);
-
-	cout << "sdl ";
 
 	glClearColor(0.5, 0.5, 0.5, 0);
 	glViewport(0, 0, width, height);	
@@ -53,17 +61,17 @@ void motor::Window::open(int width, int height, string title)
 	//glDepthFunc(GL_LEQUAL);
 	//glDepthMask(GL_TRUE);
 	//
-	//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-	//	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_SMOOTH);
 
 	//	glEnable(GL_CULL_FACE);
 	//	glCullFace(GL_BACK);
 
-	//glEnable(GL_ALPHA_TEST);
+	glEnable(GL_ALPHA_TEST);
 	//glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
 	//	glEnable(GL_BLEND);
 	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LEQUAL);
@@ -75,11 +83,14 @@ void motor::Window::open(int width, int height, string title)
 	glewInit();
 	if(!GLEW_VERSION_2_0)
 	{
-		cout << "Are you using an Intel GMA?\nI will segfault myself now..." << endl;
-		int *ptr;
-		cout << "hnnnngh! " << ptr << endl;
+		cout << "Dude, your card doesn't supports OpenGL 2.0 (which is bad!)" << endl;
+		cout << "Please update your drivers, or buy a real video card" << endl;
+		cout << endl << "If you are sure you have a real video card and up-to-date drivers, drop me an E-Mail" << endl;
+
+		cout << "hnnnngh! " << endl;
+		exit(-1);
 	}
-	cout << "and gl initialised! READY FOR WORLD DOMINATION!" << endl;
+	cout << "sdl and gl initialised! READY FOR WORLD DOMINATION!" << endl;
 }
 
 void motor::Window::resize(int x, int y)

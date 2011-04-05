@@ -29,8 +29,8 @@ namespace motor
 	{
 		unsigned char type;
 		unsigned char visible;
-		//7				6	5			4		 3			2	   1   0
-		//visible		right	left bottom back top front
+		//7				6					5			4		 3			2	   1   0
+		//visible	handled?	right	left bottom back top front
 		block_t() : type(0), visible(0) {}
 		block_t(unsigned char tp, unsigned char vs)
 		{
@@ -51,24 +51,25 @@ namespace motor
 
 			void set(glm::ivec3 &coord, unsigned short blockType);
 			void set(unsigned int x, unsigned int y, unsigned int z, unsigned short blockType);
-			block_t get(glm::ivec3 &coord);
+			block_t& get(glm::ivec3 &coord);
 			//block_t get(unsigned int x, unsigned int y, unsigned int z);
-			block_t get(int x, int y, int z);
+			block_t& get(int x, int y, int z);
 
 			unsigned int calculateVisibleSides(unsigned int, unsigned int, unsigned int);
 			void uploadToVbo();
 			unsigned int getVertexCount();
-			void draw();
 
 			unsigned int vertexBuffer;
 
+			unsigned int memoryAllocationGfx;
+			unsigned int memoryAllocationRam;
+
 		private:
 			block_t ***voxels;
-			unsigned int xSize, ySize, zSize;
+			int xSize, ySize, zSize;
 			vertex_t *vertices;
 			unsigned int vertexCount;
 			unsigned int xOff, yOff, zOff;
-
 			World *world;
 	};
 }

@@ -5,45 +5,50 @@ motor::Game::Game()
 	loop = true;
 }
 
-motor::Shader *shader;
-
-#define _OFFSET(i) ((char *)NULL + (i))
 int motor::Game::main(Window *wndw, Input *inp)
 {
 	window = wndw;
 	input = inp;
 
-	//glPolygonMode(GL_FRONT, GL_LINE);
 	//Chunk *chk = new Chunk(16, 16, 16);
 	//chk->calculateVisibleSides();
 	//chk->uploadToVbo();
-
+	
 	World world;
-	world.load(4 * 2, 4 * 2, 4 * 2);
+	world.load(4, 4, 4, 16, 16, 16); // 128
 	world.generate();
 
 	glActiveTexture(GL_TEXTURE0);
 	tileset = new Image("data/tileset.png");
 
-	shader = new motor::Shader();
-	shader->init();
+	baseShader = new motor::Shader();
+	baseShader->init();
 
-	shader->attachVertexShader("data/base.vert");
-	shader->attachFragmentShader("data/base.frag");
-	shader->compile();
+	baseShader->attachVertexShader("data/base.vert");
+	baseShader->attachFragmentShader("data/base.frag");
+	baseShader->compile();
+
 	int texUniform;
-	texUniform = shader->getUniformLocation("texture");
+	texUniform = baseShader->getUniformLocation("texture");
+
 	int positionAttrib;
 	int texcoordAttrib;
-	positionAttrib = shader->getAttributeLocation("position");
-	texcoordAttrib = shader->getAttributeLocation("texcoord");
-	cout << "texuni: " << texUniform << " posAtt: " << positionAttrib << " texcoAtt: " << texcoordAttrib << endl;
-	shader->activate();
+	positionAttrib = baseShader->getAttributeLocation("position");
+	texcoordAttrib = baseShader->getAttributeLocation("texcoord");
 
-	cam = new Camera(input, shader);
+	baseShader->activate();
+
+	cam = new Camera(input, baseShader);
 	cam->setPerspective(45.0f, float(window->width) / float(window->height), window->near, window->far);
+	cam->position = glm::vec3(0, 10, -0.5);
 
-//	init_buffers();
+	cout << endl;
+
+	glUniform1i(texUniform, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tileset->data);
+
+	glPolygonMode(GL_FRONT, GL_LINE);
 
 	while(loop)
 	{
@@ -56,69 +61,61 @@ int motor::Game::main(Window *wndw, Input *inp)
 			cam->setPerspective(45.0f, float(window->width) / float(window->height), 0.5f, window->far); 
 		}
 
-		float multiplierMove = 4.0f;
-		float multiplierRotate = 2.0f;
+		if(input->isPressed(Key::SPACE))
+		{
+			cam->position.y++;
+		}
+
+		float multiplierMove = 0;
+		float multiplierRotate = 4.0f;
 		
 		if(input->isPressed(Key::LSHIFT))
 		{
-			multiplierMove = 10;
+			multiplierMove = 0.5f;
+			multiplierRotate = 1.5f;
 		}
 		else
-			multiplierMove = 4;
-
+		{
+			multiplierMove = 3;
+			multiplierRotate = 4.0f;
+		}
 
 		if(input->isPressed(Key::COMMA))
-			cam->movePosition(0, 0, 0.1f * multiplierMove);
+			cam->moveLoc(0, 0, -multiplierMove, 1);
 		if(input->isPressed(Key::O))
-			cam->movePosition(0, 0, -0.1f * multiplierMove);
+			cam->moveLoc(0, 0, multiplierMove, 1);
 		if(input->isPressed(Key::A))
-			cam->movePosition(0.1f * multiplierMove, 0, 0);
+			cam->moveLoc(-multiplierMove, 0, 0, 1);
 		if(input->isPressed(Key::E))
-			cam->movePosition(-0.1f * multiplierMove, 0, 0);
+			cam->moveLoc(multiplierMove, 0, 0, 1);
 
 		if(input->isPressed(Key::LEFT))
-			cam->moveRotation(0, 0.87654321f * multiplierRotate, 0);
+		{
+			cam->rotateGlo(0, 1, 0, multiplierRotate);
+		}
 		if(input->isPressed(Key::RIGHT))
-			cam->moveRotation(0, -0.87654321f * multiplierRotate, 0);
+		{
+			cam->rotateGlo(0, -1, 0, multiplierRotate);
+		}
 		if(input->isPressed(Key::UP))
-			cam->moveRotation(0.87654321f * multiplierRotate, 0, 0);
+		{
+			cam->rotateLoc(multiplierRotate, 0, 0, 1);
+		}
 		if(input->isPressed(Key::DOWN))
-			cam->moveRotation(-0.87654321f * multiplierRotate, 0, 0);
+		{
+			cam->rotateLoc(-multiplierRotate, 0, 0, 1);
+		}
 		cam->think();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUniform1i(texUniform, 0);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tileset->data);
 
-		/*
-		 * void glVertexAttribPointer(	GLuint  	index,
-		 * 	GLint	size,
-		 * 	GLenum  	type,
-		 * 	GLboolean  	normalized,
-		 * 	GLsizei  	stride,
-		 * 	const GLvoid *  	pointer);
-		 */
-//		glEnableVertexAttribArray(positionAttrib);
-//		glEnableVertexAttribArray(texcoordAttrib);
-
-//		glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), _OFFSET(0));
-//		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), _OFFSET(sizeof(glm::vec3)));
-
-
-		//chk->draw();
-		////glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-		////glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//glDrawArrays(GL_QUADS, 0, chk->getVertexCount()); //6 -> VertexCount
 		world.draw(positionAttrib, texcoordAttrib);
 
 		SDL_GL_SwapBuffers();
 	}
 	return 0;
 }
-
 void motor::Game::update()
 {
 
@@ -144,12 +141,11 @@ void motor::Game::unload()
 
 }
 
-
-//positionAttrib = shader->getAttributeLocation("position");
-//texcoordAttrib = shader->getAttributeLocation("texcoord");
+//positionAttrib = baseShader->getAttributeLocation("position");
+//texcoordAttrib = baseShader->getAttributeLocation("texcoord");
 //or just bind them to a location
-//glBindAttribLocation(shader->getProgram(), 0, "position");
-//glBindAttribLocation(shader->getProgram(), 4, "texcoord");
+//glBindAttribLocation(baseShader->getProgram(), 0, "position");
+//glBindAttribLocation(baseShader->getProgram(), 4, "texcoord");
 /*unsigned int vertexBuffer;
 unsigned int elementBuffer;
 void init_buffers()

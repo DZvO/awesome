@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+DEBUG = False
+CC = "clang++"
+
 libmotor_graphics = "window.cpp shader.cpp image.cpp camera.cpp chunk.cpp world.cpp"
 libmotor_graphics = map(lambda x: "motor/graphics/" + x, Split(libmotor_graphics))
 
@@ -18,8 +21,14 @@ src_states = Split("state.cpp title.cpp game.cpp")
 libs = Split("GL GLU GLEW SDL SDL_image noise")
 
 cppPath = ["."]
-ccFlags = "-g -Wall -O3 -std=c++0x"
+
+if DEBUG:
+	ccFlags = "-g -Wall -O3"# -std=c++0x"
+else:
+	ccFlags = "-Wall -O3"# -std=c++0x"
+
 
 #Library("motor", libmotor, LIBS = libs, CPPPATH = cppPath)
 #Program("awesome", "main.cpp", LIBS = libs + ["motor"], LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags)
-Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags)
+#Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = "ccache " + CC)
+Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = "ccache " + CC)

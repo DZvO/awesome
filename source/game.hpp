@@ -6,12 +6,13 @@
 #include "motor/graphics/shader.hpp"
 #include "motor/graphics/camera.hpp"
 #include "motor/utility/log.hpp"
+#include "motor/io/input.hpp"
 
 #include <motor/math/glm/glm.hpp>
 #include <motor/math/glm/gtc/matrix_transform.hpp>
 #include <motor/math/glm/gtx/projection.hpp>
 #include <motor/math/glm/gtc/type_ptr.hpp>
-#include <GL/glut.h>
+//#include <GL/glut.h>
 #include <cmath>
 
 #include "motor/graphics/chunk.hpp"
@@ -38,6 +39,8 @@ namespace motor
 			Input *input;
 			Window *window;
 			Camera *cam;
+
+			Shader *baseShader;
 
 			bool loop;
 

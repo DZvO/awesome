@@ -25,6 +25,8 @@ motor::Chunk::Chunk(unsigned int xDim, unsigned int yDim, unsigned int zDim)
 			}
 		}
 	}
+
+	memoryAllocationRam = sizeof(block_t) * xDim * yDim * zDim;
 }
 
 motor::Chunk::~Chunk(){}
@@ -44,13 +46,13 @@ void motor::Chunk::set(unsigned int x, unsigned int y, unsigned int z, unsigned 
 	voxels[x][y][z].type = blockType;
 }
 
-motor::block_t motor::Chunk::get(glm::ivec3 &coord)
+motor::block_t& motor::Chunk::get(glm::ivec3 &coord)
 {
 	return get(coord.x, coord.y, coord.z);
 }
 
 //motor::block_t motor::Chunk::get(unsigned int x, unsigned int y, unsigned int z)
-motor::block_t motor::Chunk::get(int x, int y, int z)
+motor::block_t& motor::Chunk::get(int x, int y, int z)
 {
 	if((x >= xSize || y >= ySize || z >= zSize) || (x < 0 || y < 0 || z < 0))
 	{
@@ -73,18 +75,20 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 	this->yOff = yOff;
 	this->zOff = zOff;
 	
+	memoryAllocationGfx = 0;
+
 	vertexCount = 0;
 	unsigned int steps = 0;
-	for(unsigned int x = 0; x < xSize; x++)
-		for(unsigned int y = 0; y < ySize; y++)
-			for(unsigned int z = 0; z < zSize; z++)
+	for(int x = 0; x < xSize; x++)
+		for(int y = 0; y < ySize; y++)
+			for(int z = 0; z < zSize; z++)
 			{
 				//				cout << (int)get(x+1, y, z).type << " ";
 				if(get(x,y,z).type != BLOCK_AIR)
 				{
 					//7				6	5			4		 3			2	   1   0
 					//visible		right	left bottom back top front
-				//	get(x,y,z).visible = 0b10000000;
+					get(x,y,z).visible = 0b00000000;
 
 					//right
 					if(get(x+1, y, z).type == BLOCK_AIR)// || get(x+1, y, z).visible == 0)
@@ -92,6 +96,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						get(x,y,z).visible |= 0b10100000;
 						steps++;
 						vertexCount += 4;
+
+						memoryAllocationGfx += sizeof(float) * 4;
 					}
 					//left
 					if(get(x-1, y, z).type == BLOCK_AIR)// || get(x-1, y, z).visible == 0)
@@ -99,6 +105,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						get(x,y,z).visible |= 0b10010000;
 						steps++;
 						vertexCount += 4;
+
+						memoryAllocationGfx += sizeof(float) * 4;
 					}
 					//bottom
 					if(get(x, y-1, z).type == BLOCK_AIR)// || get(x, y-1, z).visible == 0)
@@ -106,6 +114,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						get(x,y,z).visible |= 0b10001000;
 						steps++;
 						vertexCount += 4;
+
+						memoryAllocationGfx += sizeof(float) * 4;
 					}
 					//back
 					if(get(x, y, z-1).type == BLOCK_AIR)// || get(x, y, z-1).visible == 0)
@@ -113,6 +123,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						get(x,y,z).visible |= 0b10000100;
 						steps++;
 						vertexCount += 4;
+
+						memoryAllocationGfx += sizeof(float) * 4;
 					}
 					//top
 					if(get(x, y+1, z).type == BLOCK_AIR)// || get(x, y+1, z).visible == 0)
@@ -120,6 +132,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						get(x,y,z).visible |= 0b10000010;
 						steps++;
 						vertexCount += 4;
+
+						memoryAllocationGfx += sizeof(float) * 4;
 					}
 					//front
 					if(get(x, y, z+1).type == BLOCK_AIR)// || get(x, y, z+1).visible == 0)
@@ -127,6 +141,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						get(x,y,z).visible |= 0b10000001;
 						steps++;
 						vertexCount += 4;
+
+						memoryAllocationGfx += sizeof(float) * 4;
 					}
 				}
 			}
@@ -134,9 +150,9 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 	vertices = new vertex_t[vertexCount];
 
 	unsigned int currentVertex = 0;
-	for(unsigned int x = 0; x < xSize; x++)
-		for(unsigned int y = 0; y < ySize; y++)
-			for(unsigned int z = 0; z < zSize; z++)
+	for(int x = 0; x < xSize; x++)
+		for(int y = 0; y < ySize; y++)
+			for(int z = 0; z < zSize; z++)
 			{
 				//				cout << (int)get(x+1, y, z).type << " ";
 				if(get(x,y,z).type != BLOCK_AIR)
@@ -229,9 +245,4 @@ void motor::Chunk::uploadToVbo()
 unsigned int motor::Chunk::getVertexCount()
 {
 	return vertexCount;
-}
-
-void motor::Chunk::draw()
-{
-	//glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 }

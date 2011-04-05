@@ -8,7 +8,7 @@ motor::Input::Input()
 	x = y = 0;
 }
 
-bool motor::Input::isPressed(Key k)
+bool motor::Input::isPressed(Key::Key k)
 {
 	return bool(keystates[k]);
 }

@@ -15,7 +15,8 @@ namespace motor
 	{
 		BLOCK_AIR = 0,
 		BLOCK_DIRT = 	1,
-		BLOCK_STONE = 2
+		BLOCK_STONE = 2,
+		BLOCK_SAND = 3
 	};
 
 	enum blockTexCoordEnum
@@ -31,8 +32,8 @@ namespace motor
 	 * |	 |
 	 * 0---1
 	 */
-	const float TILESET_DISPLACEMENT = 16.0f / float(TILESET_WIDTH);
-	const float OFFSET = 0.001f;
+	const double TILESET_DISPLACEMENT = 16.0 / double(TILESET_WIDTH);
+	const double OFFSET = 0.0001;
 
 	const glm::vec2 blockTexCoord[] =
 	{
@@ -46,7 +47,13 @@ namespace motor
 		glm::vec2(TILESET_DISPLACEMENT + OFFSET, TILESET_DISPLACEMENT - OFFSET),
 		glm::vec2(TILESET_DISPLACEMENT * 2 - OFFSET, TILESET_DISPLACEMENT - OFFSET),
 		glm::vec2(TILESET_DISPLACEMENT * 2 - OFFSET, 0.0f),
-		glm::vec2(TILESET_DISPLACEMENT + OFFSET, 0.0f)
+		glm::vec2(TILESET_DISPLACEMENT + OFFSET, 0.0f),
+
+		//sand
+		glm::vec2(TILESET_DISPLACEMENT * 2 + OFFSET, TILESET_DISPLACEMENT - OFFSET),
+		glm::vec2(TILESET_DISPLACEMENT * 3 - OFFSET, TILESET_DISPLACEMENT - OFFSET),
+		glm::vec2(TILESET_DISPLACEMENT * 3 - OFFSET, 0.0f),
+		glm::vec2(TILESET_DISPLACEMENT * 2 + OFFSET, 0.0f)
 	};
 }
 #endif

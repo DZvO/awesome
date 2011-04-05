@@ -23,20 +23,20 @@ namespace motor
 			Camera(Input *inputPtr, Shader *shaderPtr);
 			void setPerspective(float fov, float aspectRatio, float near, float far);
 
-			void setPosition(float x, float y, float z);
-			void movePosition(float xDelta, float yDelta, float zDelta);
-			void setRotation(float x, float y, float z);
-			void moveRotation(float xDelta, float yDelta, float zDelta);
+			void moveLoc(float x, float y, float z, float distance);
+			void moveGlo(float x, float y, float z, float distance);
+			void rotateLoc(float x, float y, float z, float degrees);
+			void rotateGlo(float x, float y, float z, float degrees);
 
 			void think();
 
+			glm::vec3 position;
+			glm::vec3 rotation;
 		private:
 			Input *input;
 			Shader *shader;
 
 			glm::vec3 lookAt;
-			glm::vec3 position;
-			glm::vec3 rotation;
 			glm::mat4 projectionMatrix;
 			glm::mat4 viewMatrix;
 			glm::mat4 modelMatrix;
