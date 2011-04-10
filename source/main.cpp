@@ -15,9 +15,10 @@ int main(int argc, char **argv)
 	Input *keys = new Input();
 	Window *window = new Window();
 	window->open(683, 384, "awesome+");
+	Time *time = new Time();
 
 	State *current = new Game();
-	current->main(window, keys);
+	current->main(window, keys, time);
 
 	delete keys;
 	delete window;

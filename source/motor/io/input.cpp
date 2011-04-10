@@ -2,25 +2,34 @@
 
 motor::Input::Input()
 {
-	keystates = SDL_GetKeyState(NULL);
+	keyStates = SDL_GetKeyState(NULL);
 	quitBool = false;
 	resized = false;
 	x = y = 0;
+	keyDelay = new float[SDLK_LAST];
 }
 
 bool motor::Input::isPressed(Key::Key k)
 {
-	return bool(keystates[k]);
+	return bool(keyStates[k]);
 }
 
-int motor::Input::update(Window *wndw)
+float motor::Input::getKeyDelay(Key::Key k)
 {
-	keystates = SDL_GetKeyState(NULL);
+	return keyDelay[k];
+}
+
+int motor::Input::update(Time* time, Window* wndw)
+{
+	keyStates = SDL_GetKeyState(NULL);
 	SDL_Event event;
 	while(SDL_PollEvent(&event))
 	{
 		if((event.type == SDL_KEYDOWN && (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q)) || event.type == SDL_QUIT)
+		{
 			quitBool = true;
+		}
+
 		if(event.type == SDL_VIDEORESIZE)
 		{
 			resized = true;
@@ -31,6 +40,14 @@ int motor::Input::update(Window *wndw)
 				wndw->resize(x, y);
 			}
 		}
+	}
+	
+	float frameTime = time->getFrameTime();
+	for(int i = 0; i < (SDLK_LAST); i++)
+	{
+		keyDelay[i] += frameTime;
+		if(keyStates[i])
+			keyDelay[i] = 0;
 	}
 	return 0;
 }

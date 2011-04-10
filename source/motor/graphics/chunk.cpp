@@ -21,7 +21,7 @@ motor::Chunk::Chunk(unsigned int xDim, unsigned int yDim, unsigned int zDim)
 			voxels[i][j] = new block_t[zDim];
 			for(unsigned int k = 0; k < zDim; k++)
 			{
-					voxels[i][j][k] = block_t(BLOCK_AIR, 0);
+				voxels[i][j][k] = block_t(BLOCK_AIR, 0);
 			}
 		}
 	}
@@ -69,12 +69,12 @@ motor::block_t& motor::Chunk::get(int x, int y, int z)
 	return voxels[x][y][z];
 }
 
-unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int yOff, unsigned int zOff)
+unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int yOff, unsigned int zOff, bool mergeFaces)
 {
 	this->xOff = xOff;
 	this->yOff = yOff;
 	this->zOff = zOff;
-	
+
 	memoryAllocationGfx = 0;
 
 	vertexCount = 0;
@@ -86,8 +86,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 				//				cout << (int)get(x+1, y, z).type << " ";
 				if(get(x,y,z).type != BLOCK_AIR)
 				{
-					//7				6	5			4		 3			2	   1   0
-					//visible		right	left bottom back top front
+					//7				6					5			4		 3			2	   1   0
+					//visible	handled?	right	left bottom back top front
 					get(x,y,z).visible = 0b00000000;
 
 					//right
@@ -155,7 +155,7 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 			for(int z = 0; z < zSize; z++)
 			{
 				//				cout << (int)get(x+1, y, z).type << " ";
-				if(get(x,y,z).type != BLOCK_AIR)
+				if(get(x,y,z).type != BLOCK_AIR)//we dont need to check air blocks, you dont see them anyway ;)
 				{
 					glm::vec3 pos = glm::vec3(x + xOff, y + yOff, z + zOff);
 					//7				6	5			4		 3			2	   1   0
@@ -205,12 +205,42 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 					//top
 					if(get(x, y+1, z).type == BLOCK_AIR)// || get(x, y+1, z).visible == 0)
 					{
-						//get(x,y,z).visible |= 0b10000010;
-						steps++;
-						vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);//near left
-						vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);//near right
-						vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);//far right
-						vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERLEFT]);//far left
+						if(mergeFaces)
+						{
+							if(!(get(x,y,z-1).visible & 0b00000010) && !(get(x,y,z-1).visible & 0b01000000)) //if top of previons block isnt visible(!!!) && block wasnt handled before
+							{
+								//get(x,y,z).visible |= 0b10000010;
+								//7				6	5			4		 3			2	   1   0
+								//visible		right	left bottom back top front
+								//TODO
+								steps++;
+
+								int zMerge = 0;
+								while((get(x,y,z + zMerge).visible & 0b00000010) || zMerge > zSize)//while end of plane not reached || zMerge > zSize
+								{
+									get(x,y,z + zMerge).visible |= 0b01000000;
+									zMerge++;
+								}
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+								vertices[currentVertex++] = vertex_t(glm::vec3( .5f,.5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);//near left
+								vertices[currentVertex++] = vertex_t(glm::vec3(-.5f,.5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);//near right
+
+								vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f, 0.f)+pos+glm::vec3(0,0,zMerge-1), blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);//far right
+								vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f, 0.f)+pos+glm::vec3(0,0,zMerge-1), blockTexCoord[(get(x,y,z).type *4-4) + LOWERLEFT]);//far left
+							}
+						}
+						else
+						{
+							//vertices[currentVertex++] = vertex_t(glm::vec3( .5f,.5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);//near left
+							//vertices[currentVertex++] = vertex_t(glm::vec3(-.5f,.5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);//near right
+							//vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);//far right
+							//vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERLEFT]);//far left
+							vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);
+							vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);
+							vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);
+							vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERLEFT]);
+						}
 					}
 					//front
 					if(get(x, y, z+1).type == BLOCK_AIR)// || get(x, y, z+1).visible == 0)
@@ -226,7 +256,8 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 			}
 	//cout << "vertices allocated: " << vertexCount << endl;
 	//cout << "vertices processed: " << currentVertex << endl;
-	return vertexCount;
+
+	return currentVertex;
 }
 
 void motor::Chunk::uploadToVbo()

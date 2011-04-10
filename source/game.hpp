@@ -6,6 +6,7 @@
 #include "motor/graphics/shader.hpp"
 #include "motor/graphics/camera.hpp"
 #include "motor/utility/log.hpp"
+#include "motor/utility/time.hpp"
 #include "motor/io/input.hpp"
 
 #include <motor/math/glm/glm.hpp>
@@ -26,7 +27,7 @@ namespace motor
 	{
 		public:
 			Game();
-			int main(Window*, Input*);
+			int main(Window*, Input*, Time*);
 			void init();
 			void load();
 			void unload();
@@ -38,6 +39,7 @@ namespace motor
 
 			Input *input;
 			Window *window;
+			Time *time;
 			Camera *cam;
 
 			Shader *baseShader;

@@ -4,6 +4,7 @@
 
 #include "motor/graphics/window.hpp"
 #include "motor/io/input.hpp"
+#include "motor/utility/time.hpp"
 
 #include <GL/gl.h>
 #include <SDL/SDL.h>
@@ -15,11 +16,11 @@ namespace motor
 	class State
 	{
 		protected:
-			SDL_Surface *screen;
+			//SDL_Surface *screen;
 			int width, height;
 		public:
 			State();
-			virtual int main(Window*, Input*);
+			virtual int main(Window*, Input*, Time*);
 			virtual void init();
 			virtual void load();
 			virtual	void unload();

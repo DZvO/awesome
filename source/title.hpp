@@ -4,6 +4,7 @@
 #include "state.hpp"
 #include "motor/graphics/image.hpp"
 #include "motor/graphics/shader.hpp"
+#include "motor/utility/time.hpp"
 #include <GL/glut.h>
 #include <cmath>
 //#include <../glm/glm.hpp>
@@ -24,7 +25,7 @@ namespace motor
 
 		public:
 		Title();
-		int main(Window*, Input*);
+		int main(Window*, Input*, Time*);
 		void init();
 		void load();
 		void unload();

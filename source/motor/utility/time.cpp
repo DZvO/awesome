@@ -3,7 +3,7 @@ using namespace motor;
 
 Time::Time()
 {
-
+	oldtime = frametime = 1;	
 }
 
 void Time::update()
@@ -14,10 +14,17 @@ void Time::update()
 	oldtime = ticks;	
 }
 
-float Time::frameTime()
+float Time::getFrameTime()
 {
-	return frametime;
+	return frametime / 1000.f;
 }
+
+float Time::get()
+{
+	return float(SDL_GetTicks()) / 1000.f;
+}
+
+//------------------------------------------------------------
 
 Timer::Timer(int timeStep)
 {
@@ -60,7 +67,7 @@ unsigned int Timer::Elapsed()
 	if(!started)
 		return 0;
 	else if(!paused)
-		return step*(SDL_GetTicks() - startTicks);
+		return step * (SDL_GetTicks() - startTicks);
 	else
-		return step*(SDL_GetTicks() - (startTicks + pausedTicks));
+		return step * (SDL_GetTicks() - (startTicks + pausedTicks));
 }

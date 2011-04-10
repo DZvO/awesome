@@ -2,6 +2,7 @@
 #define _INPUT_HPP
 
 #include "motor/graphics/window.hpp"
+#include "motor/utility/time.hpp"
 #include <SDL/SDL.h>
 
 namespace motor
@@ -83,7 +84,9 @@ namespace motor
 	}
 	class Input
 	{
-		unsigned char *keystates;	
+		unsigned char *keyStates;	
+		float *keyDelay;
+
 		bool quitBool;
 		bool resized;
 		int x, y;
@@ -91,7 +94,8 @@ namespace motor
 		public:
 		Input();
 		bool isPressed(Key::Key k);
-		int update(Window *wndw = NULL); 	//pass a pointer to window here
+		float getKeyDelay(Key::Key k);
+		int update(Time* time, Window *wndw = NULL); 	//pass a pointer to window here
 		bool windowResized();
 		bool resize(int* x, int* y);				//or handle window resizes yourself
 		bool quit();

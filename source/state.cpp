@@ -21,7 +21,7 @@ motor::State::State()
 {
 }
 
-int motor::State::main(Window *wnd, Input* inp)
+int motor::State::main(Window *wnd, Input* inp, Time *time)
 {
 	width = wnd->width;
 	height = wnd->height;

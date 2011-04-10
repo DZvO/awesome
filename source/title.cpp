@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  title.cpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  01/07/2011 07:51:19 PM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Der Zauberer von Oz (oz), starstrider.industries@gmail.com
- *        Company:  *none*
- *
- * =====================================================================================
- */
-
 #include "title.hpp"
 
 motor::Title::Title(): background("data/background.png"),	logo("data/logo.png")
@@ -23,11 +5,10 @@ motor::Title::Title(): background("data/background.png"),	logo("data/logo.png")
 	loop = true;
 }
 
-int motor::Title::main(Window *wndw, Input *inp)
+int motor::Title::main(Window *wndw, Input *inp, Time* time)
 {
+	/*
 	window = wndw;
-	//width = window->width;
-	//height = window->height;
 	input = inp;
 
 	float delta = 1;
@@ -98,6 +79,7 @@ int motor::Title::main(Window *wndw, Input *inp)
 		SDL_GL_SwapBuffers();
 		//insert code with VBO's here, please :)
 	}
+*/
 	return 0;
 }
 

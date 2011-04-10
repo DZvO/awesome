@@ -13,6 +13,7 @@ namespace motor
 
 	enum blockType
 	{
+		BLOCK_OOB = 255,
 		BLOCK_AIR = 0,
 		BLOCK_DIRT = 	1,
 		BLOCK_STONE = 2,

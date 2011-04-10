@@ -35,10 +35,11 @@ void motor::World::load(unsigned int sizeX,unsigned int sizeY, unsigned int size
 
 motor::block_t& motor::World::getBlock(unsigned int x, unsigned int y, unsigned int z)
 {
-	static block_t outOfBorderBlock = block_t(BLOCK_DIRT, 0);
+	static block_t outOfBorderBlock = block_t(BLOCK_OOB, 0xFF);
 	if((x >= worldDimX * chunkSizeX || y >= worldDimY * chunkSizeY || z >= worldDimZ * chunkSizeZ))
 	{
 		//cout << "returning early!" << endl;
+		outOfBorderBlock = block_t(BLOCK_OOB, 0xFF);
 		return outOfBorderBlock;
 	}
 	//cout << "normal!" << endl;
@@ -104,7 +105,7 @@ void motor::World::generate()
 		for(unsigned int j = 0; j < worldDimY; j++)
 			for(unsigned int k = 0; k < worldDimZ; k++)
 			{
-				vertices += chunks[i][j][k].calculateVisibleSides(i * chunkSizeX, j * chunkSizeY, k * chunkSizeZ);
+				vertices += chunks[i][j][k].calculateVisibleSides(i * chunkSizeX, j * chunkSizeY, k * chunkSizeZ, false);
 				chunks[i][j][k].uploadToVbo();
 
 				memoryAllocationRam += chunks[i][j][k].memoryAllocationRam;

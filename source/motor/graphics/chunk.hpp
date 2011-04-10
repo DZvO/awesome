@@ -55,7 +55,7 @@ namespace motor
 			//block_t get(unsigned int x, unsigned int y, unsigned int z);
 			block_t& get(int x, int y, int z);
 
-			unsigned int calculateVisibleSides(unsigned int, unsigned int, unsigned int);
+			unsigned int calculateVisibleSides(unsigned int, unsigned int, unsigned int, bool mergeFaces = false);
 			void uploadToVbo();
 			unsigned int getVertexCount();
 
@@ -67,9 +67,9 @@ namespace motor
 		private:
 			block_t ***voxels;
 			int xSize, ySize, zSize;
+			int xOff, yOff, zOff;
 			vertex_t *vertices;
 			unsigned int vertexCount;
-			unsigned int xOff, yOff, zOff;
 			World *world;
 	};
 }
