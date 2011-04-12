@@ -52,7 +52,7 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 	cam = new Camera(input, baseShader);
 	cam->setPerspective(45.0f, float(window->width) / float(window->height), window->near, window->far);
-	cam->position = glm::vec3(0, 10, -0.5);
+	cam->position = glm::vec3(0, 0, 0);
 
 	cout << endl;
 
@@ -64,8 +64,6 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 	glm::vec3 pos, acc, vel;
 	pos = glm::vec3(0, 10, 0);
-
-	cout << sizeof(Key::Key) << endl;
 
 	while(loop)
 	{
@@ -82,34 +80,6 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 			cam->setPerspective(45.0f, float(window->width) / float(window->height), 0.3f, window->far); 
 		}
 
-		pos = cam->position;
-		//cout << int(world.getBlock((int)pos.x, (int)pos.y - 2, (int)pos.z).type) << " block pos " << (int)pos.y << endl;
-
-		if(world.getBlock(round(pos.x), int(pos.y) - 2.0f, round(pos.z)).type == BLOCK_AIR)
-		{
-			vel.y -= 2.f;
-		}
-
-		if(falling())
-			vel.y -= 2.f;
-
-
-		vel += acc * time->getFrameTime();
-		pos += vel * time->getFrameTime();
-		cam->position = pos;
-
-		acc *= 0.8f;
-		vel *= 0.8f;
-
-		if(input->isPressed(Key::W))
-				printVector(pos);
-
-		//cout << input->getKeyDelay(Key::SPACE) << endl;
-		if(input->isPressed(Key::SPACE) )//&& (input->getKeyDelay(Key::SPACE) > 2.f))
-		{
-			//cout << " jump";
-			vel = glm::vec3(0.0f, 52.123f, 0);
-		}
 		//cout << endl;
 
 		float multiplierMove;
@@ -117,8 +87,12 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 		if(input->isPressed(Key::LSHIFT))
 		{
-			multiplierMove = 0.01f;
+			multiplierMove = 0.05f;
 			multiplierRotate = 1.5f;
+		}
+		else if(input->isPressed(Key::RCTRL))
+		{
+			multiplierMove = 0.01f;
 		}
 		else
 		{
@@ -147,6 +121,42 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 		if(input->isPressed(Key::DOWN))
 			cam->rotateLoc(-multiplierRotate, 0, 0, -1);
 		//cam->rotateLoc(-multiplierRotate, 0, 0, 1);
+
+
+		pos = cam->position;
+		//cout << int(world.getBlock((int)pos.x, (int)pos.y - 2, (int)pos.z).type) << " block pos " << (int)pos.y << endl;
+
+		if(world.getBlock(round(pos.x), round(pos.y), round(pos.z + 0.5f)).type == BLOCK_AIR)
+		{
+			vel.y = -2.f;
+		}
+		
+		if(world.getBlock(round(pos.x), round(pos.y), round(pos.z + 0.5f)).type != BLOCK_AIR)
+		{
+			vel.y = 0.f;
+		}
+
+		//if(falling())
+			//vel.y -= 2.f;
+		if(input->isPressed(Key::W))
+				printVector(pos);
+
+		//cout << input->getKeyDelay(Key::SPACE) << endl;
+		if(input->isPressed(Key::SPACE) && input->getKeyDelay(Key::SPACE) > .6f)
+		{
+			input->resetKeyDelay(Key::SPACE);
+		//TODO when key is down, keyDelay is always 0	
+			cout << "jump" << endl;
+			vel += glm::vec3(0.0f, 52.123f, 0.0f);
+		}
+
+		//vel += acc * time->getFrameTime();
+		pos += vel * time->getFrameTime();
+
+		//acc *= 0.8f;
+		vel *= 0.8f;
+
+		cam->position = pos;
 
 		cam->think();
 

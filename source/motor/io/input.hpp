@@ -94,6 +94,7 @@ namespace motor
 		public:
 		Input();
 		bool isPressed(Key::Key k);
+		void resetKeyDelay(Key::Key k);
 		float getKeyDelay(Key::Key k);
 		int update(Time* time, Window *wndw = NULL); 	//pass a pointer to window here
 		bool windowResized();

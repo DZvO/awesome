@@ -232,10 +232,10 @@ unsigned int motor::Chunk::calculateVisibleSides(unsigned int xOff, unsigned int
 						}
 						else
 						{
-							//vertices[currentVertex++] = vertex_t(glm::vec3( .5f,.5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);//near left
-							//vertices[currentVertex++] = vertex_t(glm::vec3(-.5f,.5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);//near right
-							//vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);//far right
-							//vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERLEFT]);//far left
+							//vertices[currentVertex++] = vertex_t(glm::vec3( 0.f, 1.f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);//near left
+							//vertices[currentVertex++] = vertex_t(glm::vec3( 1.f, 1.f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);//near right
+							//vertices[currentVertex++] = vertex_t(glm::vec3( 1.f, 1.f, 1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);//far right
+							//vertices[currentVertex++] = vertex_t(glm::vec3( 0.f, 1.f, 1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERLEFT]);//far left
 							vertices[currentVertex++] = vertex_t(glm::vec3(-.5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERLEFT]);
 							vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f, 0.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + UPPERRIGHT]);
 							vertices[currentVertex++] = vertex_t(glm::vec3( .5f, .5f,-1.f) + pos, blockTexCoord[(get(x,y,z).type *4-4) + LOWERRIGHT]);

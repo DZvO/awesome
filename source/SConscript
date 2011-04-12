@@ -31,4 +31,4 @@ else:
 #Library("motor", libmotor, LIBS = libs, CPPPATH = cppPath)
 #Program("awesome", "main.cpp", LIBS = libs + ["motor"], LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags)
 #Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = "ccache " + CC)
-Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = "ccache " + CC)
+Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = CC)

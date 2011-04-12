@@ -14,6 +14,11 @@ bool motor::Input::isPressed(Key::Key k)
 	return bool(keyStates[k]);
 }
 
+void motor::Input::resetKeyDelay(Key::Key k)
+{
+	keyDelay[k] = 0.f;
+}
+
 float motor::Input::getKeyDelay(Key::Key k)
 {
 	return keyDelay[k];
@@ -46,8 +51,8 @@ int motor::Input::update(Time* time, Window* wndw)
 	for(int i = 0; i < (SDLK_LAST); i++)
 	{
 		keyDelay[i] += frameTime;
-		if(keyStates[i])
-			keyDelay[i] = 0;
+		//if(keyStates[i])
+			//keyDelay[i] = 0;
 	}
 	return 0;
 }
