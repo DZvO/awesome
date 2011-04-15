@@ -35,6 +35,8 @@ namespace motor
 			void draw();
 
 		private:
+			void handleCamera();
+
 			Image *tileset;
 
 			Input *input;

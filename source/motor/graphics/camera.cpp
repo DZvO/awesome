@@ -129,7 +129,7 @@ void motor::Camera::think()
 	tm = glm::rotate(tm, rotation.x, glm::vec3(1, 0, 0));
 	tm = glm::rotate(tm, rotation.y, glm::vec3(0, 1, 0));
 	tm = glm::rotate(tm, rotation.z, glm::vec3(0, 0, 1));
-	tm = glm::translate(tm, -glm::vec3(position.x, position.y + 2.75f, position.z));
+	tm = glm::translate(tm, -glm::vec3(position.x, position.y + 0.5 + 1.75, position.z));
 
 	//tm[3] = glm::vec4(	
 			//-(viewMatrix[0].x * position.x + viewMatrix[0].y * position.y + viewMatrix[0].z * position.z),
