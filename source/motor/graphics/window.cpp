@@ -38,7 +38,7 @@ void motor::Window::open(int width, int height, string title)
 	screen = SDL_SetVideoMode(width, height, 32, SDL_OPENGL | SDL_DOUBLEBUF | SDL_RESIZABLE);
 	SDL_WM_SetCaption(title.c_str(), NULL);
 
-	glClearColor(0.5, 0.5, 0.5, 0);
+	glClearColor(1.f/255.f * 146.f, 1.f/255.f * 161.f, 1.f/255.f * 207.f, 0);
 	glViewport(0, 0, width, height);	
 
 	//glClearDepth(1.0f);
@@ -55,6 +55,7 @@ void motor::Window::open(int width, int height, string title)
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
 
 	glEnable(GL_DEPTH_TEST);
 	//	glDepthRangef(0.0,1.0);

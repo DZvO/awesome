@@ -50,28 +50,51 @@ motor::block_t& motor::World::getBlock(unsigned int x, unsigned int y, unsigned 
 	return chunks[x / chunkSizeX][y / chunkSizeY][z / chunkSizeZ].get(x - ((x/chunkSizeX)*chunkSizeX), y - ((y/chunkSizeY)*chunkSizeY), z - ((z/chunkSizeZ)*chunkSizeZ));
 }
 
+motor::block_t& motor::World::getBlock(glm::vec3 v)
+{
+	return getBlock(floor(v.x), floor(v.y), floor(v.z));
+}
+
 void motor::World::setBlock(unsigned int x, unsigned int y, unsigned int z, unsigned int type)
 {
+	if(x > worldDimX * chunkSizeX || y > worldDimY * chunkSizeY || z > worldDimZ * chunkSizeZ)
+		return;
 	chunks[x / chunkSizeX][y / chunkSizeY][z / chunkSizeZ].set(x - ((x/chunkSizeX)*chunkSizeX), y - ((y/chunkSizeY)*chunkSizeY), z - ((z/chunkSizeZ)*chunkSizeZ), type);
 }
 
 void motor::World::generate()
 {
+	//DEBUG
+	for (int z = 0; z < int(worldDimZ * chunkSizeZ); ++z)
+		for (int x = 0; x < int(worldDimX * chunkSizeX); ++x)
+		{
+			for (int y = 0; y < int(worldDimY * chunkSizeY); ++y)
+			{
+				setBlock(x, y, z, BLOCK_AIR);
+			}
+		}
+	//DEBUG
 	memoryAllocationRam = memoryAllocationGfx = 0;
 
-	PerlinNoise base(0, 0, 0, 0, 123);
+	float random = 0;
+	int mX, mY;
+	SDL_GetMouseState(&mX, &mY);
+	random = (mX * mY);
+//#define DEBUG
+#ifndef DEBUG
+	PerlinNoise base(0, 0, 0, 0, random);
 	base.setPersistence(0.4);
 	base.setFrequency(0.4);
 	base.setAmplitude(1.5);
 	base.setOctaves(6);
 
-	PerlinNoise mountains(0, 0, 0, 0, 321);
+	PerlinNoise mountains(0, 0, 0, 0, random);
 	mountains.setPersistence(1.0);
 	mountains.setFrequency(0.1);
 	mountains.setAmplitude(14.5);
 	mountains.setOctaves(1);
 
-	PerlinNoise sand(0.6, 0.15, 0.8, 3, 132);
+	PerlinNoise sand(0.6, 0.15, 0.8, 3, random);
 
 	for (int z = 0; z < int(worldDimZ * chunkSizeZ); ++z)
 		for (int x = 0; x < int(worldDimX * chunkSizeX); ++x)
@@ -80,7 +103,7 @@ void motor::World::generate()
 			float fMountains = mountains.getHeight(x, z);
 			float fSand = sand.getHeight(x, z);
 
-			float Height = (fBase) * worldDimY/ 4 + worldDimY / 2;
+			float Height = fBase * worldDimY / 4 + worldDimY / 3;
 			Height += fMountains > 0 ? fMountains : 0;
 
 			if(Height < 0)
@@ -88,7 +111,7 @@ void motor::World::generate()
 
 			for (int y = 0; y < Height; ++y)
 			{
-				if(fMountains > 2)
+				if(fMountains > 1.4)
 					setBlock(x, y, z, BLOCK_DIRT);
 				else if(Height == 1)
 					setBlock(x, y, z, BLOCK_DIRT);
@@ -99,6 +122,18 @@ void motor::World::generate()
 			if(fSand > 0.5)
 				setBlock(x, int(Height), z, BLOCK_SAND);
 		}
+#else
+	for (int z = 0; z < int(worldDimZ * chunkSizeZ); ++z)
+		for (int x = 0; x < int(worldDimX * chunkSizeX); ++x)
+		{
+
+			float Height = 1;
+			for (int y = 0; y < Height; ++y)
+			{
+				setBlock(x, y, z, BLOCK_STONE);
+			}
+		}
+#endif
 
 	unsigned int vertices = 0;
 	for(unsigned int i = 0; i < worldDimX; i++)
@@ -113,6 +148,15 @@ void motor::World::generate()
 			}
 	cout << worldDimX * worldDimY * worldDimZ << " chunks, " << vertices << " vertices, with a ";
 	cout << "total of " << float(memoryAllocationRam) / 1000.f << " kB RAM, " << float(memoryAllocationGfx) / 1000.f << " kB Gfx memory used (probably more :>)" << endl;
+}
+
+void motor::World::recalculateChunck(unsigned int x, unsigned int y, unsigned int z)//with block position
+{
+	//cout << x << " " << y << " " << z << endl;
+	if(x > worldDimX * chunkSizeX || y > worldDimY * chunkSizeY || z > worldDimZ * chunkSizeZ)
+		return;
+	chunks[x / chunkSizeX][y / chunkSizeY][z / chunkSizeZ].reCalculateVisibleSides();
+	chunks[x / chunkSizeX][y / chunkSizeY][z / chunkSizeZ].uploadToVbo();
 }
 
 void motor::World::draw(unsigned int positionAttrib, unsigned int texcoordAttrib)

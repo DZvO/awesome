@@ -50,12 +50,18 @@ void motor::Shader::attachShader(const char* vertexPath, const char* fragmentPat
 
 int motor::Shader::getUniformLocation(const char *name)
 {
-	return glGetUniformLocation(this->programPointer, name);
+	int ret = glGetUniformLocation(this->programPointer, name);
+	if(ret == -1)
+		cout << "Error while getting " << name << endl;
+	return ret;
 }
 
 int motor::Shader::getAttributeLocation(const char *name)
 {
-	return glGetAttribLocation(this->programPointer, name);
+	int ret = glGetAttribLocation(this->programPointer, name);
+	if(ret == -1)
+		cout << "Error while getting " << name << endl;
+	return ret;
 }
 
 bool motor::Shader::compile()

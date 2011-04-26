@@ -56,6 +56,7 @@ namespace motor
 			block_t& get(int x, int y, int z);
 
 			unsigned int calculateVisibleSides(unsigned int, unsigned int, unsigned int, bool mergeFaces = false);
+			void reCalculateVisibleSides(bool mergeFaces = false);
 			void uploadToVbo();
 			unsigned int getVertexCount();
 

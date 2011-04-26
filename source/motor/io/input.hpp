@@ -79,7 +79,8 @@ namespace motor
 			RETURN = SDLK_RETURN,
 			COMMA = SDLK_COMMA,
 
-			SPACE = SDLK_SPACE
+			SPACE = SDLK_SPACE,
+			BACKSPACE = SDLK_BACKSPACE
 		} Key;
 	}
 	class Input

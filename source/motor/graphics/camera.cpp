@@ -17,20 +17,20 @@ void motor::Camera::setPerspective(float fov, float aspectRatio, float near, flo
 	projectionMatrix = glm::perspective(fov, aspectRatio, near, far); //https://secure.wikimedia.org/wikipedia/en/wiki/Field_of_view
 }
 
-void motor::Camera::moveGlo(float x, float y, float z, float distance)
-{
+//void motor::Camera::moveGlo(float x, float y, float z, float distance)
+//{
 	//viewMatrix[3].x += x * distance;
 //	viewMatrix[3].y += y * distance;
 	//viewMatrix[3].z += z * distance;
 	//position += glm::vec3(x * distance, y * distance, z * distance);
 	//position += glm::vec3(x * distance, 0, z * distance);
 	//viewMatrix = glm::translate(glm::mat4(1.0f), position);
-	moveLoc(x,y,z,distance);
-}
+	//moveLoc(x,y,z,distance);
+//}
 
-void motor::Camera::moveLoc(float xDelta, float yDelta, float zDelta, float distance)
-{	
-	if(zDelta > 0)
+//void motor::Camera::moveLoc(float xDelta, float yDelta, float zDelta, float distance)
+//{	
+	/*if(zDelta > 0)
 	{
 		float xrotrad, yrotrad;
 		yrotrad = (rotation.y / 180.0 * M_PI);
@@ -63,6 +63,7 @@ void motor::Camera::moveLoc(float xDelta, float yDelta, float zDelta, float dist
 		position.x += float(cos(yrotrad)) * abs(xDelta);
 		position.z += float(sin(yrotrad)) * abs(xDelta);
 	}
+	*/
 /*
 	float deltaX = x * viewMatrix[0].x + y * viewMatrix[1].x + z * viewMatrix[2].x;
 	//float deltaX = x * viewMatrix[0].x + y * viewMatrix[1].x + z * viewMatrix[2].x;
@@ -76,11 +77,11 @@ void motor::Camera::moveLoc(float xDelta, float yDelta, float zDelta, float dist
 	*/
 	//position += glm::vec3(deltaX * distance, deltaY * distance, deltaZ * distance);
 	//position += glm::vec3(deltaX * distance, 0, deltaZ * distance);
-}
-
-void motor::Camera::rotateGlo(float x, float y, float z, float degrees)
-{
-	rotation += glm::vec3(x * degrees, y * degrees, z * degrees);
+//}
+//
+//void motor::Camera::rotateGlo(float x, float y, float z, float degrees)
+//{
+/*	rotation += glm::vec3(x * degrees, y * degrees, z * degrees);
 	if(rotation.x > 90) 
 	{
 		rotation.x = 90;
@@ -97,9 +98,10 @@ void motor::Camera::rotateGlo(float x, float y, float z, float degrees)
 	//float dz=x*viewMatrix[2].x + y*viewMatrix[2].y + z*viewMatrix[2].z;
 
 	//viewMatrix = glm::rotate(viewMatrix, degrees, glm::vec3(dx, dy, dz));
-}
+	*/
+//}
 
-void motor::Camera::rotateLoc(float x, float y, float z, float degrees)
+/*void motor::Camera::rotateLoc(float x, float y, float z, float degrees)
 {
 	rotation += glm::vec3(x * degrees, y * degrees, z * degrees);
 	if(rotation.x > 90) 
@@ -115,11 +117,30 @@ void motor::Camera::rotateLoc(float x, float y, float z, float degrees)
 	//viewMatrix = glm::rotate(viewMatrix, float(x), glm::vec3(1.0f, 0.0f, 0.0f));
 	//viewMatrix = glm::rotate(viewMatrix, float(y), glm::vec3(0.0f, 1.0f, 0.0f));
 }
+*/
+
+void motor::Camera::movePosition(glm::vec3 delta)
+{
+	position += delta;
+}
+
+void motor::Camera::moveRotation(glm::vec3 delta)
+{
+	rotation += delta;
+}
+
+void motor::Camera::setPosition(glm::vec3 pos)
+{
+	position = pos;
+}
 
 void motor::Camera::think()
 {
 	if(rotation.y > 360) rotation.y -= 360;
 	if(rotation.y < -360) rotation.y += 360;
+
+	if(rotation.x > 90) rotation.x = 90;
+	if(rotation.x < -90) rotation.x = -90;
 
 
 	glm::mat4 tm = glm::mat4(1.0);
@@ -129,7 +150,7 @@ void motor::Camera::think()
 	tm = glm::rotate(tm, rotation.x, glm::vec3(1, 0, 0));
 	tm = glm::rotate(tm, rotation.y, glm::vec3(0, 1, 0));
 	tm = glm::rotate(tm, rotation.z, glm::vec3(0, 0, 1));
-	tm = glm::translate(tm, -glm::vec3(position.x, position.y + 0.5 + 1.75, position.z));
+	tm = glm::translate(tm, -glm::vec3(position.x, position.y, position.z));
 
 	//tm[3] = glm::vec4(	
 			//-(viewMatrix[0].x * position.x + viewMatrix[0].y * position.y + viewMatrix[0].z * position.z),

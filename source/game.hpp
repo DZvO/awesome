@@ -7,18 +7,26 @@
 #include "motor/graphics/camera.hpp"
 #include "motor/utility/log.hpp"
 #include "motor/utility/time.hpp"
+#include "motor/utility/settings.hpp"
 #include "motor/io/input.hpp"
 
 #include <motor/math/glm/glm.hpp>
 #include <motor/math/glm/gtc/matrix_transform.hpp>
 #include <motor/math/glm/gtx/projection.hpp>
 #include <motor/math/glm/gtc/type_ptr.hpp>
+
+using glm::vec3;
+
 //#include <GL/glut.h>
 #include <cmath>
 
 #include "motor/graphics/chunk.hpp"
 #include "motor/graphics/world.hpp"
 
+#include "motor/math/aabb.hpp"
+
+#include <iostream>
+#include <ostream>
 using namespace std;
 
 namespace motor
@@ -35,14 +43,17 @@ namespace motor
 			void draw();
 
 		private:
-			void handleCamera();
+			void handlePlayer();
 
 			Image *tileset;
 
 			Input *input;
 			Window *window;
 			Time *time;
-			Camera *cam;
+			Camera *camera;
+
+			World world;
+			Settings settings;
 
 			Shader *baseShader;
 
@@ -51,6 +62,9 @@ namespace motor
 			glm::mat4 projectionMatrix;
 			glm::mat4 viewMatrix;
 			glm::mat4 modelMatrix;
+
+
+			glm::vec3 pos, acc, vel;
 	};
 }
 #endif

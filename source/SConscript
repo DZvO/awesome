@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 DEBUG = False
-CC = "clang++"
+CC = "g++"
 
 libmotor_graphics = "window.cpp shader.cpp image.cpp camera.cpp chunk.cpp world.cpp"
 libmotor_graphics = map(lambda x: "motor/graphics/" + x, Split(libmotor_graphics))
@@ -8,10 +8,10 @@ libmotor_graphics = map(lambda x: "motor/graphics/" + x, Split(libmotor_graphics
 libmotor_io = "input.cpp socket.cpp"
 libmotor_io = map(lambda x: "motor/io/" + x, Split(libmotor_io))
 
-libmotor_utility = "time.cpp"
+libmotor_utility = "time.cpp helper.cpp"
 libmotor_utility = map(lambda x: "motor/utility/" + x, Split(libmotor_utility))
 
-libmotor_math = "perlinNoise.cpp"
+libmotor_math = "perlinNoise.cpp aabb.cpp"
 libmotor_math = map(lambda x: "motor/math/" + x, Split(libmotor_math))
 
 libmotor = libmotor_graphics + libmotor_io + libmotor_utility + libmotor_math
