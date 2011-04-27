@@ -23,9 +23,9 @@ libs = Split("GL GLU GLEW SDL SDL_image noise")
 cppPath = ["."]
 
 if DEBUG:
-	ccFlags = "-g -Wall -O3"# -std=c++0x"
+	ccFlags = "-g -Wall -O3 -DDEBUG"# -std=c++0x"
 else:
-	ccFlags = "-Wall -O3"# -std=c++0x"
+	ccFlags = "-g -Wall -O3"# -std=c++0x"
 
 
 #Library("motor", libmotor, LIBS = libs, CPPPATH = cppPath)

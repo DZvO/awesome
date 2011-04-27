@@ -123,12 +123,20 @@ void motor::World::generate()
 				setBlock(x, int(Height), z, BLOCK_SAND);
 		}
 #else
+	//for (int z = 0; z < int(worldDimZ * chunkSizeZ); ++z)
+		//for (int x = 0; x < int(worldDimX * chunkSizeX); ++x)
+		//{
+//
+			//float Height = 1;
+			//for (int y = 0; y < Height; ++y)
+			//{
+				//setBlock(x, y, z, BLOCK_STONE);
+			//}
+		//}
 	for (int z = 0; z < int(worldDimZ * chunkSizeZ); ++z)
 		for (int x = 0; x < int(worldDimX * chunkSizeX); ++x)
 		{
-
-			float Height = 1;
-			for (int y = 0; y < Height; ++y)
+			for (int y = 0; y < int(worldDimY * chunkSizeY); ++y)
 			{
 				setBlock(x, y, z, BLOCK_STONE);
 			}

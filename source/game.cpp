@@ -14,14 +14,6 @@ glm::vec2 rotate(glm::vec2 point, float angleDeg)
 	return rotPoint;
 }
 
-void printVector(glm::vec3 v)
-{
-	cout.precision(4);                 // two digits after decimal point 
-	//cout.width(4);                    // in a field of 10 characters 
-	//cout.fill(' ');                    // fill using # 
-	cout << "(" << v.x << "\t" << v.y << "\t" << v.z << ")";
-}
-
 ostream& operator<<(ostream& out, const glm::vec3& v)
 {
 	return out << "v3(" << v.x << "|" << v.y << "|" << v.z << ")";
@@ -145,7 +137,7 @@ void motor::Game::handlePlayer()
 	// |
 	// |y
 	float playerRadius = .35;
-	float playerHeight = 1.7;
+	float playerHeight = 1.6;
 
 	AABB    playerBox(vec3(nx - playerRadius, ny - playerHeight, nz - playerRadius), vec3(nx + playerRadius, ny, nz + playerRadius));
 	AABB oldPlayerBox(vec3(ox - playerRadius, oy - playerHeight, oz - playerRadius), vec3(ox + playerRadius, oy, oz + playerRadius));
@@ -157,46 +149,6 @@ void motor::Game::handlePlayer()
 	{
 		newPos.y = getBbOfBlock(vec3(newPos.x, newPos.y - playerHeight, newPos.z)).max.y + playerHeight;
 		camera->setPosition(newPos);
-	//dont check with world, instead build bb`s and check with them
-	//if(world.getBlock(floor(playerBox.min.x), floor(playerBox.max.y) + 1, floor(playerBox.min.z)).type != BLOCK_AIR) //fixme?
-	//{
-		//cout << "block above head is not air!" << endl;
-		//AABB boxAbovePlayer = getBbOfBlock(vec3(x, y + 1, z));
-		//boxAbovePlayer.min.y -= 0.1f;
-		//AABB o = playerBox; //origin
-		//AABB c = boxAbovePlayer; //collider
-
-		//if(o.intersects(c) || c.intersects(o))  //logic screwed? TODO
-		//{
-		//o.min.y -= c.min.y - o.max.y;
-		//o.max.y = c.min.y;
-		//cout << "case 1, head should hurt now" << endl;
-		//}
-		//newPos = glm::vec3(x, o.max.y, z);
-		//newPos.y = floor(newPos.y);
-	//}
-
-	//if(world.getBlock(floor(nx), floor(ny - playerHeight), floor(nz)).type != BLOCK_AIR)// || world.getBlock(floor(x), ceil(y), floor(z)).type != BLOCK_AIR)
-	//if(blockBelowOldPlayerBox.intersects(playerBox))
-	//if(world.getBlock(oldPos).type != BLOCK_AIR && playerBox.min.y < blockBelowOldPlayerBox.max.y)
-	//{
-		//cout << "collision" << endl;
-		//newPos.y -= delta.y;
-		//camera->setPosition(oldPos);
-	//------------	
-		//AABB boxBelowPlayer = getBbOfBlock(vec3(nx, ny - playerHeight, nz));
-		//AABB o = playerBox; //origin
-		//AABB c = boxBelowPlayer; //collider
-//
-		//if(c.max.y > o.min.y)
-		//{
-			//o.max.y += c.max.y - o.min.y;
-			//o.min.y = c.max.y;
-			//cout << "case 2, feet touch the ground!" << endl;
-		//}
-//
-		//cout << "touching y axis" << endl;
-		//newPos = glm::vec3(nx, o.max.y, nz);
 	}
 	else
 	{
@@ -205,10 +157,29 @@ void motor::Game::handlePlayer()
 		camera->setPosition(newPos);
 	}
 
-	if(input->isPressed(Key::SPACE) && input->getKeyDelay(Key::SPACE) > 0.45f && (world.getBlock(floor(pos.x), floor(pos.y - playerHeight) - 1, floor(pos.z)).type != BLOCK_AIR))
+	//TODO mix in proper acceleration and velocity + use AABBs
+
+	//STILL ONLY Y!
+	if(world.getBlock(vec3(newPos.x, newPos.y + .123, newPos.z)).type != BLOCK_AIR) // if block at head is not air
+	{
+		//newPos.y = getBbOfBlock(vec3(newPos.x, newPos.y, newPos.z)).min.y - .25;
+		newPos.y -= delta.y + .2;
+		//newPos.y = getBbOfBlock(vec3(oldPos.x, oldPos.y, oldPos.z)).min.y;
+		//newPos.y = oldPos.y;
+		//camera->setPosition(oldPos - vec3(0, 0, 0));
+		if(vel.y > 0)
+			vel.y = 0;
+			
+		camera->setPosition(newPos - vec3(0, 0, 0));
+	}
+
+	if(input->isPressed(Key::SPACE) && input->getKeyDelay(Key::SPACE) > 0.41f && (world.getBlock(floor(pos.x), floor(pos.y - playerHeight) - 1, floor(pos.z)).type != BLOCK_AIR))
 	{
 		input->resetKeyDelay(Key::SPACE);
-		vel.y = 26.f;
+		//if(world.getBlock(vec3(pos.x, pos.y + .4, pos.z)).type == BLOCK_AIR)
+			vel.y = 12.f;
+		//else
+			//vel.y = 2.f;
 		//pos.y += 10;
 	}
 	else
@@ -285,9 +256,6 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 	positionAttrib = baseShader->getAttributeLocation("position");
 	texcoordAttrib = baseShader->getAttributeLocation("texcoord");
 
-	//float delta = 0;
-	//int deltaUniform = baseShader->getUniformLocation("delta");
-
 	baseShader->activate();
 
 	camera = new Camera(input, baseShader);
@@ -340,9 +308,6 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 		camera->think();
 
-		//delta += time->getFrameTime() * 10;
-		//glUniform1f(deltaUniform, delta);
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		world.draw(positionAttrib, texcoordAttrib);
 		SDL_GL_SwapBuffers();
@@ -373,45 +338,3 @@ void motor::Game::unload()
 {
 
 }
-
-//positionAttrib = baseShader->getAttributeLocation("position");
-//texcoordAttrib = baseShader->getAttributeLocation("texcoord");
-//or just bind them to a location
-//glBindAttribLocation(baseShader->getProgram(), 0, "position");
-//glBindAttribLocation(baseShader->getProgram(), 4, "texcoord");
-/*unsigned int vertexBuffer;
-	unsigned int elementBuffer;
-	void init_buffers()
-	{
-	GLsizei const VertexCount = 4;
-	GLsizeiptr const VertexSize = VertexCount * sizeof(vertex);
-	vertex const VertexData[VertexCount] =
-	{
-	vertex(glm::vec3(-1.0f,-1.0f, 5.0f), glm::vec2(0.0f, 1.0f)),//lower left
-	vertex(glm::vec3( 1.0f,-1.0f, 0.0f), glm::vec2(1.0f, 1.0f)),//lower right
-	vertex(glm::vec3( 1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)),//upper right
-	vertex(glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f))//upper left
-	};
-
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, VertexSize, VertexData, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	struct vertex
-	{
-	vertex
-	(
-	glm::vec3 const & Position,
-	glm::vec2 const & Texcoord
-	) :
-	Position(Position),
-	Texcoord(Texcoord)
-	{}
-
-	glm::vec3 Position;
-	glm::vec2 Texcoord;
-	};
-
-*/

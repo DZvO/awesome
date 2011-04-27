@@ -1,7 +1,7 @@
 #include "window.hpp"
 
-const float motor::Window::near = .485f;
-const float motor::Window::far = 1000.0f;
+const float motor::Window::near = .0001f;//.3005f; //.485f;
+const float motor::Window::far = 100.0f;
 
 motor::Window::Window()
 {}
