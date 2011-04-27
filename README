@@ -1,6 +1,6 @@
 "awesome" is basically a second try of a project i have been working for quite some time ("Pew-Pew"). But this time i will try to avoid the OpenGL deprecated functions and concentrate more on the GL 3/4 core feature set.
 
-Also it will have better organization file and class wise(hopefully).
+Also it will have better organization, file and class wise(hopefully).
 
 Files in the "data" directory are not consistently licensed so you should better look into "LICENSE" file.
 Other files are generally put under the public domain, unless otherwise noted at the end of the Source file.
