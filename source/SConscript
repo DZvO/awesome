@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 DEBUG = False
-CC = "g++"
+CC = "clang++"
 
 libmotor_graphics = "window.cpp shader.cpp image.cpp camera.cpp chunk.cpp world.cpp"
 libmotor_graphics = map(lambda x: "motor/graphics/" + x, Split(libmotor_graphics))
@@ -23,7 +23,7 @@ libs = Split("GL GLU GLEW SDL SDL_image noise")
 cppPath = ["."]
 
 if DEBUG:
-	ccFlags = "-g -Wall -O3 -DDEBUG"# -std=c++0x"
+	ccFlags = "-g -Wall -O0 -DDEBUG"# -std=c++0x"
 else:
 	ccFlags = "-g -Wall -O3"# -std=c++0x"
 

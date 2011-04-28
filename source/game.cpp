@@ -129,8 +129,8 @@ void motor::Game::handlePlayer()
 	vec3 newPos = pos + delta;
 	vec3 oldPos = pos;
 
-	float& nx = newPos.x; float& ny = newPos.y; float& nz = newPos.z;
-	float& ox = oldPos.x; float& oy = oldPos.y; float& oz = oldPos.z;
+	float nx = newPos.x; float ny = newPos.y; float nz = newPos.z;
+	float ox = oldPos.x; float oy = oldPos.y; float oz = oldPos.z;
 	
 	//  /z
 	// o----x
@@ -142,50 +142,54 @@ void motor::Game::handlePlayer()
 	AABB    playerBox(vec3(nx - playerRadius, ny - playerHeight, nz - playerRadius), vec3(nx + playerRadius, ny, nz + playerRadius));
 	AABB oldPlayerBox(vec3(ox - playerRadius, oy - playerHeight, oz - playerRadius), vec3(ox + playerRadius, oy, oz + playerRadius));
 
-	AABB blockBelowOldPlayerBox = getBbOfBlock(vec3(ox, oy - playerHeight - 1, oz)); //1 = Block size
-
-	//ONLY Y!
-	if(world.getBlock(vec3(newPos.x, newPos.y - playerHeight, newPos.z)).type != BLOCK_AIR)//if block at FEET is not air
+	AABB blockBelowOldPlayerBox;
+	if(world.getBlock(vec3(ox, oy - playerHeight - 1, oz)).type != BLOCK_AIR)
 	{
-		newPos.y = getBbOfBlock(vec3(newPos.x, newPos.y - playerHeight, newPos.z)).max.y + playerHeight;
+		blockBelowOldPlayerBox = getBbOfBlock(vec3(ox, oy - playerHeight - 1, oz)); //1 = Block size
+		cout << "block below not air\n";
+	}
+	else
+	{
+		blockBelowOldPlayerBox = AABB(vec3(0), vec3(0));
+		cout << "block below air\n";
+	}
+
+	//TODO mix in proper acceleration and velocity + use AABBs
+	//TODO BUG -> velocity sometimes magically rises (without reason?)
+	//only below player
+	//if(playerBox.min.y < blockBelowOldPlayerBox.max.y)
+	if(playerBox.intersects(blockBelowOldPlayerBox) || playerBox.min.y < blockBelowOldPlayerBox.max.y)
+	{
+		cout << "collision!" << "\n";
+		//newPos.y = blockBelowOldPlayerBox.max.y;
+		newPos.y = oldPos.y;
+		if(vel.y > 0)
+		{
+			vel.y = fabs(vel.y);
+			vel.y *= .1;
+		}
+		//if(vel.y < 0) vel.y = fabs(vel.y);
 		camera->setPosition(newPos);
 	}
 	else
 	{
 		//cout << "apllying gravity" << endl;
-		vel.y -= 13.666f * time->getFrameTime() * 10.f; // Physics is evil stuff!
+		//vel.y -= 13.666f * time->getFrameTime() * 10.f; // Physics is evil stuff!
+		vel.y = -13.666f * time->getFrameTime() * 10.;
 		camera->setPosition(newPos);
 	}
 
-	//TODO mix in proper acceleration and velocity + use AABBs
+	vel.y *= 0.8f;
 
-	//STILL ONLY Y!
-	if(world.getBlock(vec3(newPos.x, newPos.y + .123, newPos.z)).type != BLOCK_AIR) // if block at head is not air
+	if(input->isPressed(Key::SEMICOLON))
 	{
-		//newPos.y = getBbOfBlock(vec3(newPos.x, newPos.y, newPos.z)).min.y - .25;
-		newPos.y -= delta.y + .2;
-		//newPos.y = getBbOfBlock(vec3(oldPos.x, oldPos.y, oldPos.z)).min.y;
-		//newPos.y = oldPos.y;
-		//camera->setPosition(oldPos - vec3(0, 0, 0));
-		if(vel.y > 0)
-			vel.y = 0;
-			
-		camera->setPosition(newPos - vec3(0, 0, 0));
+		vel.y += 15.f;
+	}
+	if(input->isPressed(Key::DOT))
+	{
+		vel.y -= 15.f;
 	}
 
-	if(input->isPressed(Key::SPACE) && input->getKeyDelay(Key::SPACE) > 0.41f && (world.getBlock(floor(pos.x), floor(pos.y - playerHeight) - 1, floor(pos.z)).type != BLOCK_AIR))
-	{
-		input->resetKeyDelay(Key::SPACE);
-		//if(world.getBlock(vec3(pos.x, pos.y + .4, pos.z)).type == BLOCK_AIR)
-			vel.y = 12.f;
-		//else
-			//vel.y = 2.f;
-		//pos.y += 10;
-	}
-	else
-	{
-		vel.y *= 0.8f;
-	}
 	if(input->isPressed(Key::W) && input->getKeyDelay(Key::W) > .2f)
 	{
 		input->resetKeyDelay(Key::W);
@@ -193,7 +197,7 @@ void motor::Game::handlePlayer()
 	}
 	if(settings.printPosition)
 	{
-		cout << pos << "\n";
+		cout << pos << " velY: " << vel.y << "\n";
 	}
 
 	if(input->isPressed(Key::BACKSPACE))
@@ -239,7 +243,7 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 	cout << endl;
 
 	glActiveTexture(GL_TEXTURE0);
-	tileset = new Image("data/tileset2.png");
+	tileset = new Image("data/tileset.png");
 
 	baseShader = new motor::Shader();
 	baseShader->init();
@@ -272,8 +276,10 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 	pos = vel = acc = glm::vec3(0, 0, 0);
 
-	pos = glm::vec3(0.5, 5, 0.5);
+	pos = glm::vec3(0.5, 15, 0.5);
 	camera->position = pos;
+	vec3 rot = glm::vec3(0, 90, 0);
+	camera->rotation = rot;
 	settings.printPosition = false;
 
 	while(loop)
@@ -310,6 +316,7 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		world.draw(positionAttrib, texcoordAttrib);
+		cout << endl;
 		SDL_GL_SwapBuffers();
 	}
 	return 0;

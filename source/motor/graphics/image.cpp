@@ -17,6 +17,12 @@ motor::Image::Image(string path)
 {
 	SDL_Surface* surface = IMG_Load(path.c_str());
 
+	if(surface == NULL)
+	{
+		cout << "Couldn`t load image: " << path << endl;
+		exit(-1);
+	}
+
 	GLuint texture;
 	glPixelStorei(GL_UNPACK_ALIGNMENT,4);
 	glGenTextures(1, &texture);

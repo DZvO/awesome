@@ -5,9 +5,6 @@
 #include <iostream>
 using namespace std;
 
-#include <noise/noise.h>
-using namespace noise;
-
 #include "motor/graphics/chunk.hpp"
 #include "motor/math/perlinNoise.hpp"
 
