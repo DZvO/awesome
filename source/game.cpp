@@ -143,43 +143,42 @@ void motor::Game::handlePlayer()
 	AABB oldPlayerBox(vec3(ox - playerRadius, oy - playerHeight, oz - playerRadius), vec3(ox + playerRadius, oy, oz + playerRadius));
 
 	AABB blockBelowOldPlayerBox;
-	if(world.getBlock(vec3(ox, oy - playerHeight - 1, oz)).type != BLOCK_AIR)
+	if(world.getBlock(vec3(nx, ny - playerHeight - 1, nz)).type != BLOCK_AIR)
 	{
 		blockBelowOldPlayerBox = getBbOfBlock(vec3(ox, oy - playerHeight - 1, oz)); //1 = Block size
-		cout << "block below not air\n";
-	}
-	else
-	{
-		blockBelowOldPlayerBox = AABB(vec3(0), vec3(0));
-		cout << "block below air\n";
-	}
+		//cout << "block below not air\n";
 
-	//TODO mix in proper acceleration and velocity + use AABBs
-	//TODO BUG -> velocity sometimes magically rises (without reason?)
-	//only below player
-	//if(playerBox.min.y < blockBelowOldPlayerBox.max.y)
-	if(playerBox.intersects(blockBelowOldPlayerBox) || playerBox.min.y < blockBelowOldPlayerBox.max.y)
-	{
-		cout << "collision!" << "\n";
-		//newPos.y = blockBelowOldPlayerBox.max.y;
-		newPos.y = oldPos.y;
-		if(vel.y > 0)
+		//TODO mix in proper acceleration and velocity + use AABBs
+		//TODO BUG -> velocity sometimes magically rises (without reason?)
+		//only below player
+		//if(playerBox.min.y < blockBelowOldPlayerBox.max.y)
+		if(playerBox.intersects(blockBelowOldPlayerBox) || playerBox.min.y < blockBelowOldPlayerBox.max.y)
 		{
-			vel.y = fabs(vel.y);
-			vel.y *= .1;
+			//cout << "collision!" << "\n";
+			newPos.y = blockBelowOldPlayerBox.max.y + playerHeight;
+			//newPos.y = oldPos.y;
+			vel.y = vel.y * .01f;
+			if(fabs(vel.y) < 0.1) vel.y = 0.f;
+			camera->setPosition(newPos);
+			cout << "collididng\n";
 		}
-		//if(vel.y < 0) vel.y = fabs(vel.y);
-		camera->setPosition(newPos);
+		else
+		{
+			camera->setPosition(newPos);
+			cout << "block below is not air\n";
+		}
 	}
 	else
 	{
 		//cout << "apllying gravity" << endl;
 		//vel.y -= 13.666f * time->getFrameTime() * 10.f; // Physics is evil stuff!
-		vel.y = -13.666f * time->getFrameTime() * 10.;
+		vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
 		camera->setPosition(newPos);
+		cout << "falling\n";
 	}
+	plot.add(vel.y, "Velocity");
 
-	vel.y *= 0.8f;
+	//vel.y *= 0.8f;
 
 	if(input->isPressed(Key::SEMICOLON))
 	{
@@ -282,6 +281,8 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 	camera->rotation = rot;
 	settings.printPosition = false;
 
+	plot.addNode("Velocity", false);
+
 	while(loop)
 	{
 		time->update();
@@ -289,7 +290,7 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 
 		if(input->quit())
-			return 0;
+			loop = false;
 		if(input->windowResized())
 		{
 			cout << "handled!" << window->width << " " << window->height << endl;
@@ -316,7 +317,6 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		world.draw(positionAttrib, texcoordAttrib);
-		cout << endl;
 		SDL_GL_SwapBuffers();
 	}
 	return 0;
@@ -344,4 +344,11 @@ void motor::Game::load()
 void motor::Game::unload()
 {
 
+}
+
+motor::Game::~Game()
+{
+	plot.close();
+
+	cout << endl << "bye" << endl;
 }

@@ -8,7 +8,7 @@ libmotor_graphics = map(lambda x: "motor/graphics/" + x, Split(libmotor_graphics
 libmotor_io = "input.cpp socket.cpp"
 libmotor_io = map(lambda x: "motor/io/" + x, Split(libmotor_io))
 
-libmotor_utility = "time.cpp helper.cpp"
+libmotor_utility = "time.cpp helper.cpp plot.cpp"
 libmotor_utility = map(lambda x: "motor/utility/" + x, Split(libmotor_utility))
 
 libmotor_math = "perlinNoise.cpp aabb.cpp"

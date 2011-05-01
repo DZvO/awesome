@@ -26,6 +26,7 @@ namespace motor
 			virtual	void unload();
 			virtual void update();
 			virtual void draw();
+			~State();
 	};
 }
 #endif

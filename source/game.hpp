@@ -8,6 +8,7 @@
 #include "motor/utility/log.hpp"
 #include "motor/utility/time.hpp"
 #include "motor/utility/settings.hpp"
+#include "motor/utility/plot.hpp"
 #include "motor/io/input.hpp"
 
 #include <motor/math/glm/glm.hpp>
@@ -41,6 +42,7 @@ namespace motor
 			void unload();
 			void update();
 			void draw();
+			~Game();
 
 		private:
 			void handlePlayer();
@@ -51,6 +53,7 @@ namespace motor
 			Window *window;
 			Time *time;
 			Camera *camera;
+			Plot plot;
 
 			World world;
 			Settings settings;

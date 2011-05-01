@@ -17,9 +17,12 @@ int main(int argc, char **argv)
 	window->open(683, 384, "awesome+");
 	Time *time = new Time();
 
-	State *current = new Game();
+	Game *current = new Game();
 	current->main(window, keys, time);
 
+	delete current;
 	delete keys;
 	delete window;
+
+	return 0;
 }

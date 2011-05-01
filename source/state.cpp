@@ -1,20 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  game.cpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  12/11/2010 02:28:14 PM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Der Zauberer von Oz (oz), starstrider.industries@gmail.com
- *        Company:  *none*
- *
- * =====================================================================================
- */
 #include "state.hpp"
 
 motor::State::State()
@@ -52,3 +35,6 @@ void motor::State::update()
 
 }
 
+motor::State::~State()
+{
+}

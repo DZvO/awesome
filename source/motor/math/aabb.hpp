@@ -12,6 +12,9 @@ namespace motor
 
 			bool intersects(AABB& checkAgainst);
 			static bool intersects(AABB& aabb1, AABB& aabb2);
+
+			bool isVecInside(glm::vec3& v);
+			static bool isVecInside(AABB& aabb, glm::vec3& v);
 			glm::vec3 center();
 
 			glm::vec3 min;
