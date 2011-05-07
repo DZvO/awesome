@@ -80,6 +80,7 @@ void motor::World::generate()
 	int mX, mY;
 	SDL_GetMouseState(&mX, &mY);
 	random = (mX * mY);
+	cout << "random seed: " << random << "\n";
 //#define DEBUG
 #ifndef DEBUG
 	PerlinNoise base(0, 0, 0, 0, random);
