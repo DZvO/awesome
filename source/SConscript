@@ -18,6 +18,8 @@ libmotor = libmotor_graphics + libmotor_io + libmotor_utility + libmotor_math
 
 src_states = Split("state.cpp title.cpp game.cpp")
 
+other_files = Split("player.cpp")
+
 libs = Split("GL GLU GLEW SDL SDL_image noise")
 
 cppPath = ["."]
@@ -31,4 +33,4 @@ else:
 #Library("motor", libmotor, LIBS = libs, CPPPATH = cppPath)
 #Program("awesome", "main.cpp", LIBS = libs + ["motor"], LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags)
 #Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, LIBPATH = ".", CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = "ccache " + CC)
-Program("awesome", ["main.cpp"] + libmotor + src_states, LIBS = libs, CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = CC)
+Program("awesome", ["main.cpp"] + libmotor + src_states + other_files, LIBS = libs, CPPPATH = cppPath, CCFLAGS = ccFlags, CXX = CC)

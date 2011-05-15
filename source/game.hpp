@@ -46,6 +46,8 @@ namespace motor
 
 		private:
 			void handlePlayer();
+			void handleCollision(vec3, float);
+			bool playerColliding();
 
 			Image *tileset;
 

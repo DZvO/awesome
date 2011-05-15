@@ -56,6 +56,155 @@ bool inRange(float f, float comparator, float range)
 	return false;
 }
 
+bool motor::Game::playerColliding()
+{
+/*	int minX = int(playerBox.min.x);
+	int minY = int(playerBox.min.y);
+	int minZ = int(playerBox.min.z);
+
+	int maxX = int(playerBox.max.x);
+	int maxY = int(playerBox.max.y);
+	int maxZ = int(playerBox.max.z);
+
+	for (int x = minX; x <= maxX; x++)
+		for (int y = minY; y <= maxY; y++)
+			for (int z = minZ; z <= maxZ; z++)
+			{
+				if(world.getBlock(x, y, z).type != BLOCK_AIR)
+					return true;
+			}
+
+	return false;
+	*/
+
+	vec3 Position = pos;
+	vec3 size = glm::vec3(.6, 1.6, .6);
+	//int minX = Position.x - size.x / 2;
+	//int minY = Position.y - size.y / 2;
+	//int minZ = Position.z - size.z / 2;
+
+	//int maxX = Position.x + size.x / 2;
+	//int maxY = Position.y + size.y / 2;
+	//int maxZ = Position.z + size.z / 2;
+	//AABB    playerBox = AABB(vec3(nx - playerRadius, ny - playerHeight, nz - playerRadius), vec3(nx + playerRadius, ny, nz + playerRadius));
+	int minX = pos.x - size.x / 2;
+	int minY = pos.y - size.y;
+	int minZ = pos.z - size.z / 2;
+
+	int maxX = pos.x + size.x / 2;
+	int maxY = pos.y;
+	int maxZ = pos.z + size.z / 2;
+
+	for (int x = minX; x <= maxX; x++)
+		for (int y = minY; y <= maxY; y++)
+			for (int z = minZ; z <= maxZ; z++)
+			{
+				if(world.getBlock(x, y, z).type != BLOCK_AIR)// world.getBlock(x, y, z).type != BLOCK_OOB)
+				{
+					cout << (int)world.getBlock(x, y, z).type << "\n";
+					return true;
+				}
+			}
+
+	return false;
+
+}
+
+void motor::Game::handleCollision(glm::vec3 deltaMove, float multiplierMove)
+{
+	//  /z
+	// o----x
+	// |
+	// |y
+	const float playerRadius = .35;
+	const float playerHeight = 1.6;
+
+	vec3 delta = (deltaMove * multiplierMove) + (vel * time->getFrameTime());
+	//vec3 newPos = pos;
+	vec3 oldPos = pos;
+
+	//AABB    playerBox = AABB(vec3(nx - playerRadius, ny - playerHeight, nz - playerRadius), vec3(nx + playerRadius, ny, nz + playerRadius));
+	//AABB oldPlayerBox(vec3(ox - playerRadius, oy - playerHeight, oz - playerRadius), vec3(ox + playerRadius, oy, oz + playerRadius));
+
+	//TODO use aabbs for collision
+	//			->check multiple nodes around the player -- check how minecraft does this
+	//TODO get some acceleration in here?
+
+	pos.x += delta.x;
+	if(playerColliding())
+	{
+		pos.x -= delta.x;
+		cout << "colliding x" << "\n";
+	}
+
+	pos.y += delta.y;
+	if(playerColliding())
+	{
+		pos.y -= delta.y;
+		//vel -= glm::dot(vel, vec3(0, 1, 0)) * vec3(0, 1, 0);
+		//pos -= glm::dot(pos, vec3(0, 1, 0)) * vec3(0, 1, 0);
+		//pos += glm::dot(oldPos, vec3(0, 1, 0)) * vec3(0, 1, 0);
+		pos.y = floor(pos.y) + .6000;
+		//newPos.y = floor(newPos.y) + ;
+		if(vel.y < 0) vel.y = 0;
+		cout << "colliding y " << int(pos.y - 1.6) << "\n";
+	}
+	else if(world.getBlock(pos.x, pos.y - 1.6, pos.z).type == BLOCK_AIR)
+	{
+		cout << "falling" << endl;
+		vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
+	}
+	//{
+		//vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
+	//}
+
+	pos.z += delta.z;
+	if(playerColliding())
+	{
+		cout << "colliding z" << "\n";
+		pos.z -= delta.z;
+	}
+
+	camera->setPosition(pos);
+
+	/*	FOUND THE SOLUTION???
+
+			position.X += velocity.X;
+			if(colliding())
+			position.X -= velocity.X;
+
+			position.Y += velocity.Y;
+			if(colliding())
+			position.Y -= velocity.Y;
+
+			position.Z += velocity.Z;
+			if(colliding())
+			position.Z -= velocity.Z;
+
+			bool colliding()
+			{
+			int minX = Position.X - size.X / 2;
+			int minY = Position.Y - size.Y / 2;
+			int minZ = Position.Z - size.Z / 2;
+
+			int maxX = Position.X + size.X / 2;
+			int maxY = Position.Y + size.Y / 2;
+			int maxZ = Position.Z + size.Z / 2;
+
+			for (int x = minX; x <= maxX; x++)
+			for (int y = minY; y <= maxY; y++)
+			for (int z = minZ; z <= maxZ; z++)
+			{
+			if(blockType[x, y, z] != 0)
+			return true;
+			}
+
+			return false;
+			}
+
+*/
+}
+
 void motor::Game::handlePlayer()
 {
 	float multiplierMove = 0;
@@ -131,66 +280,26 @@ void motor::Game::handlePlayer()
 		camera->moveRotation(glm::vec3(multiplierRotate, 0, 0));
 	}
 	//----------------------------------
-	pos = camera->position;
-
-	vec3 delta = (deltaMove * multiplierMove) + (vel * time->getFrameTime());
-	vec3 newPos = pos + delta;
-	vec3 oldPos = pos;
-
-	float& nx = newPos.x; float& ny = newPos.y; float& nz = newPos.z;
-	float& ox = oldPos.x; float& oy = oldPos.y; float& oz = oldPos.z;
-	
-	//  /z
-	// o----x
-	// |
-	// |y
-	float playerRadius = .35;
-	float playerHeight = 1.6;
-
-	AABB    playerBox(vec3(nx - playerRadius, ny - playerHeight, nz - playerRadius), vec3(nx + playerRadius, ny, nz + playerRadius));
-	AABB oldPlayerBox(vec3(ox - playerRadius, oy - playerHeight, oz - playerRadius), vec3(ox + playerRadius, oy, oz + playerRadius));
-
-	AABB blockBelowOldPlayerBox;
-	if(world.getBlock(vec3(nx, ny - playerHeight, nz)).type != BLOCK_AIR)
-	{
-		blockBelowOldPlayerBox = getBbOfBlock(vec3(ox, oy - playerHeight - .6f, oz)); //1 = Block size
-		//TODO mix in proper acceleration and velocity + use AABBs
-		newPos.y = blockBelowOldPlayerBox.max.y + playerHeight;
-		
-		vel.y = 0;
-		//cout << "blockBelowPlayer: " << blockBelowOldPlayerBox << " playerBox: " << playerBox << "\n";
-		//cout << "position: " << newPos << endl;
-		//cout << "collision" << "\n";
-		camera->setPosition(newPos);
-	}
-	else if(world.getBlock(vec3(nx, ny - playerHeight, nz)).type == BLOCK_AIR)
-	{
-		//cout << "apllying gravity" << endl;
-		//vel.y -= 13.666f * time->getFrameTime() * 10.f; // Physics is evil stuff!
-		vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
-		//vel.y = -(1.666f * 4 * time->getFrameTime() * 10.);
-		
-		camera->setPosition(newPos);
-		//cout << "falling\n";
-	}
-	else
-	{
-		cout << "nothing happening? boo!" << "\n";
-	}
-	//vel.y *= 0.8f;
+	//
+	handleCollision(deltaMove, multiplierMove);
 
 	if(input->isPressed(Key::SEMICOLON))
 	{
 		//newPos.y += 1.f * multiplierMove;
+		//newPos.y += .1f;
 		//camera->setPosition(newPos);
-		vel.y += 15.f;
+		vel.y = +15.f;
+		//pos.y += 1.f * multiplierMove;
 	}
 	if(input->isPressed(Key::DOT))
 	{
 		//newPos.y -= 1.f * multiplierMove;
+		//newPos.y -= .1f;
 		//camera->setPosition(newPos);
-		vel.y -= 15.f;
+		vel.y = -15.f;
+		//pos.y -= 1.f * multiplierMove;
 	}
+	//camera->setPosition(newPos);
 
 	if(input->isPressed(Key::W) && input->getKeyDelay(Key::W) > .2f)
 	{
@@ -285,9 +394,6 @@ int motor::Game::main(Window *wndw, Input *inp, Time *tt)
 	settings.printPosition = false;
 
 	plot.addNode("Velocity", false);
-
-	cout << inRange(0.9, 1, 0.1) << endl;
-	cout << inRange(1, 0.9, 0.1) << endl;
 
 	while(loop)
 	{
