@@ -112,10 +112,9 @@ bool motor::Game::playerColliding()
 
 void motor::Game::handleCollision(glm::vec3 deltaMove, float multiplierMove)
 {
-	//  /z
-	// o----x
-	// |
-	// |y
+	//TODO use aabbs for collision
+	//			->check multiple nodes around the player -- check how minecraft does this
+	//TODO get some acceleration in here?
 	const float playerRadius = .35;
 	const float playerHeight = 1.6;
 
@@ -123,86 +122,70 @@ void motor::Game::handleCollision(glm::vec3 deltaMove, float multiplierMove)
 	//vec3 newPos = pos;
 	vec3 oldPos = pos;
 
-	//AABB    playerBox = AABB(vec3(nx - playerRadius, ny - playerHeight, nz - playerRadius), vec3(nx + playerRadius, ny, nz + playerRadius));
-	//AABB oldPlayerBox(vec3(ox - playerRadius, oy - playerHeight, oz - playerRadius), vec3(ox + playerRadius, oy, oz + playerRadius));
+	pos.y += delta.y;
+	AABB playerBox = AABB(vec3(pos.x - playerRadius, pos.y - playerHeight, pos.z - playerRadius), vec3(pos.x + playerRadius, pos.y, pos.z + playerRadius));
 
-	//TODO use aabbs for collision
-	//			->check multiple nodes around the player -- check how minecraft does this
-	//TODO get some acceleration in here?
-
-	pos.x += delta.x;
-	if(playerColliding())
+	bool collide = false;
+	for(int x = playerBox.min.x; x <= playerBox.max.x; x++)
 	{
-		pos.x -= delta.x;
-		cout << "colliding x" << "\n";
+		for(int y = playerBox.min.y; y <= playerBox.max.y; y++)
+		{
+			for(int z = playerBox.min.z; z <= playerBox.max.z; z++)
+			{
+				block_t node = world.getBlock(x, y, z);
+				//AABB nodeBox = getBbOfBlock(vec3(x, y, z));
+				if(node.type != BLOCK_AIR)
+				{
+					collide = true;
+				}
+			}
+		}
 	}
 
-	pos.y += delta.y;
-	if(playerColliding())
+	//handle 3 states:
+	//	1-no collision, free fall -> apply negative velocity / gravity
+	//	2-no collision, standing on top of block -> dont apply velocity/gravity
+	//	3-collision, after applying velocity -> reverse position in negative delta
+	if(collide)//3
 	{
 		pos.y -= delta.y;
-		//vel -= glm::dot(vel, vec3(0, 1, 0)) * vec3(0, 1, 0);
-		//pos -= glm::dot(pos, vec3(0, 1, 0)) * vec3(0, 1, 0);
-		//pos += glm::dot(oldPos, vec3(0, 1, 0)) * vec3(0, 1, 0);
-		pos.y = floor(pos.y) + .6000;
-		//newPos.y = floor(newPos.y) + ;
 		if(vel.y < 0) vel.y = 0;
-		cout << "colliding y " << int(pos.y - 1.6) << "\n";
+		pos.y = floor(pos.y) - 1 + playerHeight;
 	}
-	else if(world.getBlock(pos.x, pos.y - 1.6, pos.z).type == BLOCK_AIR)
+	else if(collide == false) //2 & 1
 	{
-		cout << "falling" << endl;
-		vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
-	}
-	//{
-		//vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
-	//}
+		bool falling = true;
 
-	pos.z += delta.z;
-	if(playerColliding())
-	{
-		cout << "colliding z" << "\n";
-		pos.z -= delta.z;
+		//for(every block directly below playerBox)
+			//if(block.type != air)
+				//falling = false;
+		for(int x = playerBox.min.x; x <= playerBox.max.x; x++)
+		{
+			for(int y = playerBox.min.y; y >= (playerBox.min.y) - 0; y--)
+			{
+				for(int z = playerBox.min.z; z <= playerBox.max.z; z++)
+				{
+					block_t node = world.getBlock(x, y, z);
+					if(node.type != BLOCK_AIR)
+						falling = false;
+				}
+			}
+		}
+		if(falling)//1
+		{
+			vel.y = -(13.666f * 4 * time->getFrameTime() * 10.);
+		}
+		else//2
+		{
+			cout << "not falling!\n";
+		}
+		//cout << "falling: " << (falling ? "true" : "false") << "\n";
 	}
 
+
+	//cout << "collide: " << (collide ? "true" : "false") << "\n";
+	//cout << endl;
 	camera->setPosition(pos);
-
-	/*	FOUND THE SOLUTION???
-
-			position.X += velocity.X;
-			if(colliding())
-			position.X -= velocity.X;
-
-			position.Y += velocity.Y;
-			if(colliding())
-			position.Y -= velocity.Y;
-
-			position.Z += velocity.Z;
-			if(colliding())
-			position.Z -= velocity.Z;
-
-			bool colliding()
-			{
-			int minX = Position.X - size.X / 2;
-			int minY = Position.Y - size.Y / 2;
-			int minZ = Position.Z - size.Z / 2;
-
-			int maxX = Position.X + size.X / 2;
-			int maxY = Position.Y + size.Y / 2;
-			int maxZ = Position.Z + size.Z / 2;
-
-			for (int x = minX; x <= maxX; x++)
-			for (int y = minY; y <= maxY; y++)
-			for (int z = minZ; z <= maxZ; z++)
-			{
-			if(blockType[x, y, z] != 0)
-			return true;
-			}
-
-			return false;
-			}
-
-*/
 }
 
 void motor::Game::handlePlayer()
@@ -289,7 +272,7 @@ void motor::Game::handlePlayer()
 		//newPos.y += .1f;
 		//camera->setPosition(newPos);
 		vel.y = +15.f;
-		//pos.y += 1.f * multiplierMove;
+		pos.y += 1.f * multiplierMove;
 	}
 	if(input->isPressed(Key::DOT))
 	{
@@ -297,7 +280,11 @@ void motor::Game::handlePlayer()
 		//newPos.y -= .1f;
 		//camera->setPosition(newPos);
 		vel.y = -15.f;
-		//pos.y -= 1.f * multiplierMove;
+		pos.y -= 1.f * multiplierMove;
+	}
+	if(input->isPressed(Key::TAB))
+	{
+		pos.y = floor(pos.y) + .6;
 	}
 	//camera->setPosition(newPos);
 

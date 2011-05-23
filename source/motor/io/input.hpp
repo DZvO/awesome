@@ -82,7 +82,8 @@ namespace motor
 			SPACE = SDLK_SPACE,
 			BACKSPACE = SDLK_BACKSPACE,
 			SEMICOLON = SDLK_SEMICOLON,
-			DOT = SDLK_PERIOD
+			DOT = SDLK_PERIOD,
+			TAB = SDLK_TAB
 		} Key;
 	}
 	class Input
